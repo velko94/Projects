@@ -1,0 +1,44 @@
+header {
+	width: 97vw;
+	margin-top: 10px;
+	margin-left: 20px;
+}
+
+.dropdown {
+	position: relative;
+	bottom: 120px;
+	height: 60px;
+	width: 360px;
+	background-color: #5c87ba;
+}
+
+.dropdown:hover {
+	background-color: green;
+}
+
+.drop {
+	font-size: 40px;
+}
+
+.condiment-txt {
+	font-size: 50px;
+	color: antiquewhite;
+	position: absolute;
+	left: 450px;
+	bottom: 250px;
+}
+
+.submitbtn {
+	position: relative;
+	top: 30px;
+	left: 8rem;
+	font-size: 20px;
+	background-color: #5c87ba;
+	border: 2px solid #5c87ba;
+	color: antiquewhite;
+	font-size: 30px;
+}
+
+.submitbtn:hover {
+	background-color: red;
+}

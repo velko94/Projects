@@ -1,0 +1,60 @@
+.container {
+	width: 1200px;
+	height: 200px;
+	margin-left: 70px;
+}
+
+.pizzapic {
+	margin-top: 20px;
+	margin-left: 20px;
+	width: 10rem;
+	height: 10rem;
+	border-radius: 40%;
+}
+
+.pizza-header {
+	position: relative;
+	left: 200px;
+	bottom: 170px;
+	color: #74acef;
+	;
+}
+
+.explain {
+	color: antiquewhite;
+	width: 500px;
+	font-size: 20px;
+	margin-left: 200px;
+	position: relative;
+	bottom: 190px;
+}
+
+.btn {
+	position: relative;
+	bottom: 250px;
+	right: 5px;
+	float: right;
+	height: 50px;
+	width: 150px;
+	background-color: #5c87ba;
+	overflow: hidden;
+	border-radius: 25%;
+}
+
+.redirect {
+	color: antiquewhite;
+	text-decoration: none;
+	font-size: 40px;
+	margin-left: 20px;
+}
+
+.btn:hover {
+	background-color: red;
+}
+
+.company-name {
+	position: relative;
+	right: 80px;
+	font-size: 70px;
+	color: antiquewhite;
+}

@@ -1,0 +1,102 @@
+/* all text styles here */
+.blog-name {
+	width: 200px;
+	height: 20px;
+	position: relative;
+	left: 550px;
+	font-size: 30px;
+}
+
+.addtext {
+	padding-left: 45px;
+}
+
+a {
+	color: black;
+	text-decoration: none;
+}
+
+a:hover {
+	color: blue;
+}
+
+a:active {
+	color: #ccc;
+}
+
+.btns-text {
+	font-size: 20px;
+	padding-top: 30px;
+	padding-left: 10px;
+}
+
+.title,
+.topic {
+	font-size: 30px;
+}
+
+.content {
+	font-size: 20px;
+}
+
+.title,
+.topic,
+.content {
+	padding-left: 20px;
+}
+
+.topic,
+.title,
+.content,
+.addtext,
+.blog-name,
+.btns-text {
+	font-family: 'Open Sans', sans-serif;
+	font-family: 'Lato', sans-serif;
+}
+
+/* all container styles here */
+.big-box {
+	width: 100%;
+	height: 65rem;
+	margin: 0px;
+	background-color: #e8e8e8;
+
+}
+
+.addingBox {
+	background-color: #2ce52c;
+	width: 150px;
+	height: 50px;
+	position: sticky;
+	top: 7rem;
+	left: 72rem;
+}
+
+.container {
+	border: 1px solid black;
+	background-color: cadetblue;
+	width: 60%;
+	height: 200px;
+	margin-top: 0px;
+	margin-bottom: 20px;
+	margin-left: 40px;
+}
+
+.changebtn {
+	width: 70px;
+	height: 100px;
+	background-color: yellow;
+	position: relative;
+	top: -10.7rem;
+	margin-left: 45.5rem;
+}
+
+.delbtn {
+	width: 70px;
+	height: 100px;
+	background-color: red;
+	position: relative;
+	top: -12rem;
+	margin-left: 45.5rem;
+}

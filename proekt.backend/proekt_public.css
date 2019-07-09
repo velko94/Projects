@@ -1,0 +1,91 @@
+.blog-name {
+	width: 200px;
+	height: 20px;
+	position: relative;
+	left: 550px;
+}
+
+.big-box {
+	width: 97.6vw;
+	height:160vh;
+	margin:0px;
+	background-color: #e8e8e8;
+	overflow: hidden;
+}
+
+.container,
+.id,
+.timebox {
+	border: 1px solid black;
+}
+
+.container {
+	background-color: cadetblue;
+	width: 60%;
+	height: 200px;
+	margin-top:20px;
+	margin-bottom: 40px;
+	margin-left: 40px;
+}
+
+.id {
+	width: 70px;
+	height: 50px;
+	background-color: yellow;
+	position: relative;
+	top: -176px;
+	left: 53.4vw;
+}
+
+.timebox {
+	position: relative;
+	top: -12vh;
+	left: 43vw;
+	width: 200px;
+	height: 39px;
+	background-color: blue;
+}
+
+h1 {
+	font-size: 30px;
+}
+
+p {
+	width: 700px;
+	font-size: 20px;
+	overflow: hidden;
+
+}
+
+h1,
+p,.enterlink {
+	margin-left: 20px;
+	font-family: 'Open Sans', sans-serif;
+	font-family: 'Lato', sans-serif;
+}
+
+h2 {
+	color:black;
+	font-size: 20px;
+	margin-left: 20px;
+}
+
+.enterbtn{width: 150px;
+height: 60px;
+background-color: blue;
+position: sticky;
+top:12rem;
+left: 65rem;
+border:1px solid black;
+border-radius: 30%;
+}
+
+.enterlink{text-decoration: none;
+	color:white;
+	font-size: 20px;
+position: relative;
+top:15px;
+left:5px;
+}
+.enterbtn:active{
+	background-color: red; }

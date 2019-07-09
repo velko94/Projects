@@ -1,0 +1,77 @@
+body {
+	background-image: url(pizza.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+	overflow-x: hidden;
+}
+
+header {
+	width: 94vw;
+	height: 70px;
+	background-color: #5c87ba;
+	padding-left: 40px;
+}
+
+.menu-head,
+.order-head,
+.login-head {
+	font-size: 40px;
+	text-decoration: none;
+	color: antiquewhite;
+}
+
+.menu-head:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.order-head:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.login-head:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.heading {
+	margin-left: 30rem;
+	margin-top: 5rem;
+}
+
+.login-head {
+	float: right;
+	margin-right: 70px;
+}
+
+.menu-head {
+	margin-left: 20px;
+}
+
+.orders-menu {
+	margin-top: 5rem;
+	margin-left: 30rem;
+}
+
+.company-name {
+	position: relative;
+	right: 60px;
+	bottom: 70px;
+	font-size: 70px;
+	color: antiquewhite;
+}
+
+.text {
+	color: antiquewhite;
+	font-family: 'Lato', sans-serif;
+	font-family: 'Rubik', sans-serif;
+}
+
+.btn {
+	background-color: #5c87ba;
+}
+
+.btn:hover {
+	background-color: red;
+}

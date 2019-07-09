@@ -1,0 +1,225 @@
+* {
+	box-sizing: border-box
+}
+
+body {
+	background-color: wheat;
+	border: 2px solid black;
+	margin-top: 0px;
+	padding: 0px;
+	height: 98vh;
+	width: 98vw;
+}
+
+.game {
+	margin-top: 10px;
+	margin-left: 85px;
+	background-color: wheat;
+	width: 80vw;
+	height: 92vh;
+	border: 4px solid black;
+}
+
+.firstPlayer,
+.secondPlayer,
+.thirdPlayer,
+.forthPlayer {
+	border-radius: 20%;
+	width: 250px;
+	height: 180px;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.firstPlayer {
+	background-color: blue;
+}
+
+.secondPlayer {
+	background-color: orange;
+}
+
+.thirdPlayer {
+	background-color: yellow;
+}
+
+.forthPlayer {
+	background-color: green;
+}
+
+.firstPlayer,
+.secondPlayer {
+	margin-bottom: 143px;
+	margin-top: 20px;
+}
+
+.firstPlayer,
+.thirdPlayer {
+	margin-left: 90px;
+}
+
+.secondPlayer,
+.forthPlayer {
+	margin-right: 90px;
+}
+
+.thirdPlayer,
+	{
+	position: absolute;
+	top: 400px;
+}
+
+.smallCircle1,
+.smallCircle2 {
+
+	background-color: white;
+	border-radius: 50%;
+	height: 40px;
+	width: 40px;
+}
+
+.smallCircle1 {
+	position: relative;
+	left: 70px;
+	bottom: -20px
+}
+
+.smallCircle2 {
+	position: relative;
+	left: 170px;
+	top: -20px;
+}
+
+.horizontalRoad {
+	border: 2px solid black;
+	width: 79%;
+	background-color: white;
+	position: absolute;
+	top: 240px;
+	left: 100px;
+	height: 90px;
+
+}
+
+.upperRoad {
+	background-color: orange;
+	flex-direction: column;
+	width: 33.3%;
+	border: 1px solid black;
+}
+
+.upperStep,
+.upperStep1,
+.lowerStep,
+.lowerStep1 {
+	background-color: white;
+	height: 36.5px;
+	width: 31px;
+	border: 1px solid black;
+}
+
+.upperStep1 {
+	background-color: red;
+}
+
+.verticalRoad {
+	display: flex;
+	border: 2px solid black;
+	background-color: aqua;
+	position: absolute;
+	top: 18px;
+	left: 540px;
+	width: 100px;
+	height: 38vh;
+}
+
+.home {
+	position: absolute;
+	border: 5px solid black;
+	top: 240px;
+	left: 540.4px;
+	width: 100px;
+	height: 90px;
+	background-color: red;
+	z-index: 1;
+}
+
+.lowerRoad {
+	display: flex;
+	position: relative;
+	top: 52vh;
+	left: -16vh;
+}
+
+.lowerStep,
+.lowerStep1 {
+	border: 2px solid black
+}
+
+.leftRoad {
+	float: left;
+}
+
+.leftRoad1,
+.leftRoad2,
+.leftRoad3,
+.rightRoad1,
+.rightRoad2,
+.rightRoad3 {
+	height: 29px;
+	background-color: aqua;
+	display: flex;
+}
+
+.rightRoad {
+	float: right;
+}
+
+
+.leftRowStep,
+.rightRowStep {
+
+	flex-direction: row;
+	border: 2px solid black;
+	width: 73px;
+	height: 30px;
+	background-color: white;
+}
+
+.leftRowStep1,
+.rightRowStep1 {
+	border: 1px solid black;
+	width: 73px;
+	height: 30px;
+}
+
+.leftRowStep1 {
+	background-color: blue;
+}
+
+.rightRowStep1 {
+	background-color: green;
+}
+
+.lowerStep1 {
+	background-color: yellow;
+}
+
+.upperStep1 {
+	background-color: orange;
+}
+
+.pawn {
+	position:relative;
+	top:-15px;
+	left:-5px;
+	background-color:;
+	width: 50px;
+	height: 50px;
+}
