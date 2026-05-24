@@ -1,0 +1,16 @@
+# Python системни файлове
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# PyCharm системна папка
+.idea/
+
+# AWS и Terraform временни файлове (за по-нататък)
+.terraform/
+*.tfstate
+*.tfstate.backup
+.aws-sam/
