@@ -9,3 +9,14 @@ services:
     environment:
     - irrigation_api_key=poliva_samo_velko
     restart: always
+  db:
+    image: postgres:15-alpine
+    container_name: irrigation-db
+    environment:
+      - POSTGRES_USER=velko_admin
+      - POSTGRES_PASSWORD=strashna_parola_123
+      - POSTGRES_DB=irrigation_system
+    ports:
+      - "5432:5432"
+volumes:
+  postgres_data:
