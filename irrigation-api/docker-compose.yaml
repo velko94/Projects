@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  irrigation-app:
+    build: .
+    container_name: my-irrigation-app
+    ports:
+    - "8001:8000"
+    environment:
+    - irrigation_api_key=poliva_samo_velko
+    restart: always
