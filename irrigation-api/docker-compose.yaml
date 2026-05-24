@@ -7,15 +7,20 @@ services:
     ports:
     - "8001:8000"
     environment:
-    - irrigation_api_key=poliva_samo_velko
+    - irrigation_api_key=${IRRIGATION_API_KEY}
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=${POSTGRES_DB}
+    - DB_HOST=${DB_HOST}
     restart: always
   db:
     image: postgres:15-alpine
     container_name: irrigation-db
     environment:
-      - POSTGRES_USER=velko_admin
-      - POSTGRES_PASSWORD=strashna_parola_123
-      - POSTGRES_DB=irrigation_system
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DB_HOST${DB_HOST}
     ports:
       - "5432:5432"
 volumes:
