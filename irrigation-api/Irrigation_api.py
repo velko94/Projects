@@ -4,6 +4,9 @@ from pydantic import BaseModel
 import os
 from mangum import Mangum
 from datetime import datetime
+from database import engine,Base
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Irrigation API")
 handler = Mangum(app)
