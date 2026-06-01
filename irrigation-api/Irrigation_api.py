@@ -4,16 +4,17 @@ from pydantic import BaseModel
 import os
 from mangum import Mangum
 from datetime import datetime
-from database import engine,Base
+from database import engine, Base
+from security import get_password_encode, check_pwd
 
+get_password_encode()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Irrigation API")
 handler = Mangum(app)
 
 API_KEY_NAME = "X-API-KEY"
-API_KEY = os.getenv("irrigation_api_key","кой полива и кога")
-
+API_KEY = os.getenv("irrigation_api_key", "кой полива и кога")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
@@ -22,6 +23,10 @@ def verifiy_api_key(header_key: str = Security(api_key_header)):
     if header_key != API_KEY:
         raise HTTPException(status_code=401, detail="Wrong api key")
     return header_key
+
+
+class UserRegister(BaseModel):
+    username: str
 
 
 Zones_db = {
@@ -57,8 +62,18 @@ def check_zones():
 
 
 @app.post("/api/v1/telemetry")
-def receive_telemetry(data: SensorData,token: str = Depends(verifiy_api_key)):
+def receive_telemetry(data: SensorData, token: str = Depends(verifiy_api_key)):
     if data.humidity < 30:
-     return {"status": "success", "msg": "Soil is dry, consider watering!", "telemetry": data}
+        return {"status": "success", "msg": "Soil is dry, consider watering!", "telemetry": data}
     else:
-     return {"status": "success", "msg": "data is received", "telemetry": data}
+        return {"status": "success", "msg": "data is received", "telemetry": data}
+
+
+@app.post("api/v1/register")
+def register_user(username_input:str):
+    status = check_pwd(username_input)
+    if status == "Wrong password":
+        raise HTTPException(status_code=401, detail="Грешно подадена парола")
+    if status == "user already exists":
+        raise HTTPException(status_code=400, detail="Този потребител вече существува")
+    return {"status":"success","message":f"Потребител {username_input} е регистриран успешно!"}
