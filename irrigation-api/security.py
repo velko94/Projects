@@ -1,3 +1,5 @@
+import os
+
 import bcrypt
 
 global pwd_bytes, hashed
@@ -6,7 +8,8 @@ from database import register_user
 
 def get_password_encode():
     global pwd_bytes, hashed
-    pwd_bytes = input("type yоur password: ", ).encode('utf-8')
+    api_key_string = os.getenv("IRRIGATION_API_KEY","КОЙ ПОЛИВА И КОГА")
+    pwd_bytes = api_key_string.encode('utf-8')
     hashed = bcrypt.hashpw(pwd_bytes, bcrypt.gensalt())
 
 
