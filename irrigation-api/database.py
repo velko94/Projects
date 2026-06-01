@@ -1,8 +1,8 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, text
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from dotenv import load_dotenv
-from security import hashed
+
 
 load_dotenv()
 DB_USER = os.getenv("POSTGRES_USER")
@@ -34,8 +34,23 @@ def get_db():
 
 
 def create_user(db: Session, username_input: str, hashed_pwd: str):
-    db_user = User(user_name=username_input, user_password=hashed_pwd)
+    db_user = User(username=username_input, user_password=hashed_pwd)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+
+def register_user(username_input: str, hashed_pwd: str):
+    db = SessionLocal()
+    try:
+        query = text("SELECT * FROM users WHERE username= :user")
+        result = db.execute(query, {"user": username_input}).fetchone()
+        if result:
+            return "user already exists"
+        else:
+            create_user()
+            return "User created"
+    finally:
+       db.close()
