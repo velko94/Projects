@@ -14,7 +14,7 @@ app = FastAPI(title="Smart Irrigation API")
 handler = Mangum(app)
 
 API_KEY_NAME = "X-API-KEY"
-API_KEY = os.getenv("irrigation_api_key", "кой полива и кога")
+API_KEY = os.getenv("IRRIGATION_API_KEY", "кой полива и кога")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
@@ -69,7 +69,7 @@ def receive_telemetry(data: SensorData, token: str = Depends(verifiy_api_key)):
         return {"status": "success", "msg": "data is received", "telemetry": data}
 
 
-@app.post("api/v1/register")
+@app.post("api/v1/register/")
 def register_user(username_input:str):
     status = check_pwd(username_input)
     if status == "Wrong password":
