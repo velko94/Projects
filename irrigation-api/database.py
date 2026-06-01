@@ -50,7 +50,7 @@ def register_user(username_input: str, hashed_pwd: str):
         if result:
             return "user already exists"
         else:
-            create_user()
+            create_user(db, username_input,hashed_pwd)
             return "User created"
     finally:
        db.close()
