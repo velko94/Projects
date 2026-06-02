@@ -5,10 +5,8 @@ import re
 import os
 from mangum import Mangum
 from datetime import datetime
-
 from pydantic_core import PydanticCustomError
-
-from database import engine, Base
+from database import engine, Base, SessionLocal
 from users import register_user
 
 Base.metadata.create_all(bind=engine)
@@ -40,23 +38,22 @@ class UserRegister(BaseModel):
         username_clean = v.strip()
 
         if not username_clean:
-            raise PydanticCustomError('empty_error','Потребителското неможе да е празно')
+            raise PydanticCustomError('empty_error', 'Потребителското неможе да е празно')
         if len(username_clean) < 3:
-            raise PydanticCustomError('length_error','Потребителското име трябва да има поне 3 символа')
+            raise PydanticCustomError('length_error', 'Потребителското име трябва да има поне 3 символа')
         if not v.strip():
-            raise PydanticCustomError('value_error','Полето не може да бъде празно или да съдържа само интервали!')
+            raise PydanticCustomError('value_error', 'Полето не може да бъде празно или да съдържа само интервали!')
         if not re.match(r'^[a-zA-Z0-9_а-яА-Я]+$', username_clean):
-            raise PydanticCustomError('value_error',"Потребителското име може да съдържа само букви цифри и долни черти")
+            raise PydanticCustomError('value_error',
+                                      "Потребителското име може да съдържа само букви цифри и долни черти")
         return username_clean
 
-
     @field_validator('password')
-
     def validate_password(cls, v):
-      pwd_clean = v.strip()
-      if len(pwd_clean) < 5:
-        raise PydanticCustomError('length_error','Паролата трябва да е поне 5 символа')
-      return pwd_clean
+        pwd_clean = v.strip()
+        if len(pwd_clean) < 5:
+            raise PydanticCustomError('length_error', 'Паролата трябва да е поне 5 символа')
+        return pwd_clean
 
 
 Zones_db = {
