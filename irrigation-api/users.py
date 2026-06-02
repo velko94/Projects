@@ -26,14 +26,3 @@ def register_user(username_input: str, raw_password: str):
             return {"status": "success", "message": f"Потребител {username_input} е регистриран успешно!"}
     finally:
        db.close()
-
-
-# def register_user(user_data.regi):
-#     status = check_pwd(user_data.username,user_data.password)
-#     if status == "Wrong password":
-#         raise HTTPException(status_code=401, detail="Грешно подадена парола")
-#     if status == "user already exists":
-#
-#     else:
-#         create_user()
-#     return {"status":"success","message":f"Потребител {user_data.username} е регистриран успешно!"}
