@@ -1,6 +1,6 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String, text
-from sqlalchemy.orm import sessionmaker, Session, declarative_base
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
 
@@ -32,25 +32,3 @@ def get_db():
     finally:
         db.close()
 
-
-def create_user(db: Session, username_input: str, hashed_pwd: str):
-    db_user = User(username=username_input, user_password=hashed_pwd)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-
-def register_user(username_input: str, hashed_pwd: str):
-    db = SessionLocal()
-    try:
-        query = text("SELECT * FROM users WHERE username= :user")
-        result = db.execute(query, {"user": username_input}).fetchone()
-        if result:
-            return "user already exists"
-        else:
-            create_user(db, username_input,hashed_pwd)
-            return "User created"
-    finally:
-       db.close()
