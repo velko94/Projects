@@ -3,7 +3,6 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-
 load_dotenv()
 DB_USER = os.getenv("POSTGRES_USER")
 DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
@@ -31,4 +30,3 @@ def get_db():
         yield db  # -gives session ot the user
     finally:
         db.close()
-

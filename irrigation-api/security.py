@@ -1,8 +1,6 @@
 import os
 import bcrypt
 
-global pwd_bytes, hashed
-
 
 def get_password_encode(raw_password: str):
     api_key_string = os.getenv("IRRIGATION_API_KEY", "КОЙ ПОЛИВА И КОГА")
@@ -11,7 +9,7 @@ def get_password_encode(raw_password: str):
     return hashed
 
 
-def get_password_decode():
+def get_password_decode(hashed):
     decode_pwd = hashed.decode('utf-8')
     return decode_pwd  # - returns the decoded password
 

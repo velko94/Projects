@@ -6,7 +6,7 @@ import os
 from mangum import Mangum
 from datetime import datetime
 from pydantic_core import PydanticCustomError
-from database import engine, Base, SessionLocal
+from database import engine, Base
 from users import register_user
 
 Base.metadata.create_all(bind=engine)
@@ -49,7 +49,7 @@ class UserRegister(BaseModel):
         return username_clean
 
     @field_validator('password')
-    def validate_password(cls, v):
+    def validate_password(cls, v):  # v stands for value provided by the customer
         pwd_clean = v.strip()
         if len(pwd_clean) < 5:
             raise PydanticCustomError('length_error', 'Паролата трябва да е поне 5 символа')
@@ -69,8 +69,8 @@ class SensorData(BaseModel):
     humidity: float
 
 
-@app.post("/api/v1/zones/{zone_id}/toggle")
-def toggle(zone_id: int, token: str = Depends(verifiy_api_key)):
+@app.post("/api/v1/zones/{zone_id}/toggle", dependencies = [Depends(verifiy_api_key)])
+def toggle(zone_id: int):
     event_time = datetime.now()
     if zone_id not in Zones_db:
         raise HTTPException(status_code=404, detail="No such zone")
@@ -88,8 +88,8 @@ def check_zones():
     return Zones_db
 
 
-@app.post("/api/v1/telemetry/")
-def receive_telemetry(data: SensorData, token: str = Depends(verifiy_api_key)):
+@app.post("/api/v1/telemetry/", dependencies = [Depends(verifiy_api_key)])
+def receive_telemetry(data: SensorData):
     if data.humidity < 30:
         return {"status": "success", "msg": "Soil is dry, consider watering!", "telemetry": data}
     else:
@@ -103,4 +103,4 @@ def register_user_main(user_data: UserRegister):
 
 @app.post("/api/v1/login")
 def login_user(user_data: UserRegister):
-    return login_user(user_data.username , user_data.password)
+    return login_user(user_data.username, user_data.password)
