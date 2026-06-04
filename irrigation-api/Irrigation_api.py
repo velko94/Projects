@@ -33,12 +33,12 @@ class UserRegister(BaseModel):
     @field_validator('username', mode='before')
     def validate_username(cls, v):
         if not isinstance(v, str):
-            raise PydanticCustomError('Потребителското име трябва да е текст')
+            raise PydanticCustomError('input_error', 'Потребителското име трябва да е текст')
 
         username_clean = v.strip()
 
         if not username_clean:
-            raise PydanticCustomError('empty_error', 'Потребителското неможе да е празно')
+            raise PydanticCustomError('empty_error', 'Потребителското не може да е празно')
         if len(username_clean) < 3:
             raise PydanticCustomError('length_error', 'Потребителското име трябва да има поне 3 символа')
         if not v.strip():
