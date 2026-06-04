@@ -7,8 +7,7 @@ from mangum import Mangum
 from datetime import datetime
 from pydantic_core import PydanticCustomError
 from database import engine, Base
-from users import register_user
-
+from users import register_user,login_user
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Irrigation API")
@@ -102,5 +101,5 @@ def register_user_main(user_data: UserRegister):
 
 
 @app.post("/api/v1/login")
-def login_user(user_data: UserRegister):
-    return login_user(user_data.username, user_data.password)
+def login(user_data:UserRegister):
+    return login_user(user_data.username,user_data.password)

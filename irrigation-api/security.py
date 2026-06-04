@@ -15,4 +15,6 @@ def get_password_decode(hashed):
 
 
 def check_pwd(raw_password: str, hashed_pwd_from_db: str):
-    return bcrypt.checkpw(raw_password.encode('utf-8'), hashed_pwd_from_db.encode('utf-8'))
+    hex_str = str(hashed_pwd_from_db)[2:]
+    hashed_clean = bytes.fromhex(hex_str).decode('utf-8')
+    return bcrypt.checkpw(raw_password.encode('utf-8'), hashed_clean.encode('utf-8'))

@@ -33,10 +33,8 @@ def register_user(username_input: str, raw_password: str):
 def login_user(username_input: str, raw_password: str):
     db = SessionLocal()
     try:
-
         query = text("SELECT username, user_password FROM users WHERE username = :user")
         user_record = db.execute(query, {"user": username_input}).fetchone()
-
         if not user_record:
             raise HTTPException(status_code=400, detail="Грешно потребителско име или парола")
         hashed_password_from_db = user_record[1]
