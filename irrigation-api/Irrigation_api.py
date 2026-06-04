@@ -99,3 +99,8 @@ def receive_telemetry(data: SensorData, token: str = Depends(verifiy_api_key)):
 @app.post("/api/v1/register")
 def register_user_main(user_data: UserRegister):
     return register_user(user_data.username, user_data.password)
+
+
+@app.post("/api/v1/login")
+def login_user(user_data: UserRegister):
+    return login_user(user_data.username , user_data.password)
