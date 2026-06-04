@@ -40,7 +40,7 @@ def login_user(username_input: str, raw_password: str):
         hashed_password_from_db = user_record[1]
 
         if not check_pwd(raw_password, hashed_password_from_db):
-            raise HTTPException(status_code=400, detail="Грешно потребителско име или парола")
+            raise HTTPException(status_code=400, detail="Грешна парола")
         return {"status": "success", "message": f"Добре дошъл, {username_input}"}
 
     finally:
