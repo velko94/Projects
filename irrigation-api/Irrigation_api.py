@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi import FastAPI, HTTPException, Security, Depends,Request,status
+from fastapi.exceptions import RequestValidationError
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, field_validator, Field
 import re
@@ -6,8 +7,11 @@ import os
 from mangum import Mangum
 from datetime import datetime
 from pydantic_core import PydanticCustomError
+from starlette.responses import JSONResponse
 from database import engine, Base
-from users import register_user,login_user
+from users import register_user, login_user
+
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Irrigation API")
@@ -17,6 +21,7 @@ API_KEY_NAME = "X-API-KEY"
 API_KEY = os.getenv("IRRIGATION_API_KEY", "КОЙ ПОЛИВА И КОГА")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
 
 
 def verifiy_api_key(header_key: str = Security(api_key_header)):
@@ -29,7 +34,7 @@ class UserRegister(BaseModel):
     username: str = Field(...)
     password: str = Field(..., min_length=5)
 
-    @field_validator('username', mode='before')
+    @field_validator('username')
     def validate_username(cls, v):
         if not isinstance(v, str):
             raise PydanticCustomError('input_error', 'Потребителското име трябва да е текст')
@@ -40,9 +45,7 @@ class UserRegister(BaseModel):
             raise PydanticCustomError('empty_error', 'Потребителското не може да е празно')
         if len(username_clean) < 3:
             raise PydanticCustomError('length_error', 'Потребителското име трябва да има поне 3 символа')
-        if not v.strip():
-            raise PydanticCustomError('value_error', 'Полето не може да бъде празно или да съдържа само интервали!')
-        if not re.match(r'^[a-zA-Z0-9_а-яА-Я]+$', username_clean):
+        if not re.match(r'^[a-zA-Z0-9_\u0400-\u04FF]+$', username_clean):
             raise PydanticCustomError('value_error',
                                       "Потребителското име може да съдържа само букви цифри и долни черти")
         return username_clean
@@ -68,7 +71,21 @@ class SensorData(BaseModel):
     humidity: float
 
 
-@app.post("/api/v1/zones/{zone_id}/toggle", dependencies = [Depends(verifiy_api_key)])
+@app.exception_handler(RequestValidationError)
+async def custom_validation_exception_handler(request: Request, exc: RequestValidationError):
+    cleaned_errors = []
+    for err in exc.errors():
+        err_dict = dict(err)
+        err_dict.pop("input", None)  # Премахва input полето от отговора
+        cleaned_errors.append(err_dict)
+
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": cleaned_errors},
+    )
+
+
+@app.post("/api/v1/zones/{zone_id}/toggle", dependencies=[Depends(verifiy_api_key)])
 def toggle(zone_id: int):
     event_time = datetime.now()
     if zone_id not in Zones_db:
@@ -87,7 +104,7 @@ def check_zones():
     return Zones_db
 
 
-@app.post("/api/v1/telemetry/", dependencies = [Depends(verifiy_api_key)])
+@app.post("/api/v1/telemetry/", dependencies=[Depends(verifiy_api_key)])
 def receive_telemetry(data: SensorData):
     if data.humidity < 30:
         return {"status": "success", "msg": "Soil is dry, consider watering!", "telemetry": data}
@@ -101,5 +118,5 @@ def register_user_main(user_data: UserRegister):
 
 
 @app.post("/api/v1/login")
-def login(user_data:UserRegister):
-    return login_user(user_data.username,user_data.password)
+def login(user_data: UserRegister):
+    return login_user(user_data.username, user_data.password)
