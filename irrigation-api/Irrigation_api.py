@@ -10,6 +10,7 @@ from pydantic_core import PydanticCustomError
 from starlette.responses import JSONResponse
 from database import engine, Base
 from users import register_user, login_user
+from security import verify_jwt_token
 
 
 Base.metadata.create_all(bind=engine)
@@ -120,3 +121,11 @@ def register_user_main(user_data: UserRegister):
 @app.post("/api/v1/login")
 def login(user_data: UserRegister):
     return login_user(user_data.username, user_data.password)
+
+@app.get("/api/v1/users/me")
+def get_current_user_info(current_user: str = Depends(verify_jwt_token)):
+    return {
+        "status": "success",
+        "username": current_user,
+        "message": f"Успешен достъп с JWT токен за {current_user}!"
+    }
