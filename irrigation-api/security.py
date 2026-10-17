@@ -1,9 +1,10 @@
 import os
 import bcrypt
-from datetime import datetime, timedelta,timezone
+from datetime import datetime, timedelta, timezone
 import jwt
 from fastapi import HTTPException, Security
-from fastapi.security import  HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 
 def get_password_encode(raw_password: str):
     pwd_bytes = raw_password.encode('utf-8')
@@ -28,12 +29,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
 security_bearer = HTTPBearer()
 
+
 def create_access_token(data: dict) -> str:
     """Генерира JWT токен"""
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 
 def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Security(security_bearer)):
     """Проверява Bearer токена от Header-а"""

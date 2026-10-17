@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Security, Depends,Request,status
+from fastapi import FastAPI, HTTPException, Security, Depends, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, field_validator, Field
@@ -12,7 +12,6 @@ from database import engine, Base
 from users import register_user, login_user
 from security import verify_jwt_token
 
-
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Irrigation API")
@@ -22,7 +21,6 @@ API_KEY_NAME = "X-API-KEY"
 API_KEY = os.getenv("IRRIGATION_API_KEY", "КОЙ ПОЛИВА И КОГА")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
-
 
 
 def verifiy_api_key(header_key: str = Security(api_key_header)):
@@ -121,6 +119,7 @@ def register_user_main(user_data: UserRegister):
 @app.post("/api/v1/login")
 def login(user_data: UserRegister):
     return login_user(user_data.username, user_data.password)
+
 
 @app.get("/api/v1/users/me")
 def get_current_user_info(current_user: str = Depends(verify_jwt_token)):

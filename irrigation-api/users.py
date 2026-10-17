@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from database import SessionLocal, User
-from security import get_password_encode, check_pwd ,create_access_token
+from security import get_password_encode, check_pwd, create_access_token
 
 
 def create_user(db: Session, username_input: str, hashed_pwd: str):
