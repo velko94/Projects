@@ -8,7 +8,7 @@ from mangum import Mangum
 from datetime import datetime
 from pydantic_core import PydanticCustomError
 from starlette.responses import JSONResponse
-from database import engine, Base
+from database.connection import engine, Base
 from users import register_user, login_user
 from security import verify_jwt_token
 
@@ -71,7 +71,7 @@ class SensorData(BaseModel):
 
 
 @app.exception_handler(RequestValidationError)
-async def custom_validation_exception_handler(request: Request, exc: RequestValidationError):
+async def custom_validation_exception_handler(_request: Request, exc: RequestValidationError):
     cleaned_errors = []
     for err in exc.errors():
         err_dict = dict(err)
