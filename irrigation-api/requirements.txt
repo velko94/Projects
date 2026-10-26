@@ -11,3 +11,5 @@ dotenv~=0.9.9
 starlette~=1.7.0
 PyJWT==2.8.0
 boto3==1.34.34
+slowapi
+

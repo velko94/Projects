@@ -11,11 +11,17 @@ from starlette.responses import JSONResponse
 from database.connection import engine, Base
 from users import register_user, login_user
 from security import verify_jwt_token
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Irrigation API")
 handler = Mangum(app)
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 API_KEY_NAME = "X-API-KEY"
 API_KEY = os.getenv("IRRIGATION_API_KEY", "КОЙ ПОЛИВА И КОГА")
@@ -23,7 +29,7 @@ API_KEY = os.getenv("IRRIGATION_API_KEY", "КОЙ ПОЛИВА И КОГА")
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 
-def verifiy_api_key(header_key: str = Security(api_key_header)):
+def verify_api_key(header_key: str = Security(api_key_header)):
     if header_key != API_KEY:
         raise HTTPException(status_code=401, detail="Wrong api key")
     return header_key
@@ -71,7 +77,7 @@ class SensorData(BaseModel):
 
 
 @app.exception_handler(RequestValidationError)
-async def custom_validation_exception_handler(_request: Request, exc: RequestValidationError):
+async def custom_validation_exception_handler(request: Request, exc: RequestValidationError):
     cleaned_errors = []
     for err in exc.errors():
         err_dict = dict(err)
@@ -84,8 +90,9 @@ async def custom_validation_exception_handler(_request: Request, exc: RequestVal
     )
 
 
-@app.post("/api/v1/zones/{zone_id}/toggle", dependencies=[Depends(verifiy_api_key)])
-def toggle(zone_id: int):
+@app.post("/api/v1/zones/{zone_id}/toggle", dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
+async def toggle(request: Request, zone_id: int):
     event_time = datetime.now()
     if zone_id not in Zones_db:
         raise HTTPException(status_code=404, detail="No such zone")
@@ -103,7 +110,7 @@ def check_zones():
     return Zones_db
 
 
-@app.post("/api/v1/telemetry/", dependencies=[Depends(verifiy_api_key)])
+@app.post("/api/v1/telemetry/", dependencies=[Depends(verify_api_key)])
 def receive_telemetry(data: SensorData):
     if data.humidity < 30:
         return {"status": "success", "msg": "Soil is dry, consider watering!", "telemetry": data}
@@ -117,7 +124,8 @@ def register_user_main(user_data: UserRegister):
 
 
 @app.post("/api/v1/login")
-def login(user_data: UserRegister):
+@limiter.limit("5/minute")
+def login(request: Request, user_data: UserRegister):
     return login_user(user_data.username, user_data.password)
 
 
