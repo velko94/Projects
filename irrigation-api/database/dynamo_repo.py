@@ -5,7 +5,7 @@ from database.base import BaseUserRepository
 
 class DynamoUserRepository(BaseUserRepository):
     def __init__(self):
-        table_name = os.getenv("DYNAMODB_TABLE_USERS", "Users")
+        table_name = os.getenv("DYNAMODB_TABLE_USERS", "users")
         region = os.getenv("AWS_REGION", "eu-central-1")
         dynamodb = boto3.resource("dynamodb", region_name=region)
         self.table = dynamodb.Table(table_name)
@@ -18,7 +18,7 @@ class DynamoUserRepository(BaseUserRepository):
         return None
 
     def create_user(self, username: str, hashed_pwd: str):
-        self.table.put.item(
+        self.table.put_item(
             Item={
                 "username": username,
                 "user_password": str(hashed_pwd)
