@@ -9,7 +9,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 def get_password_encode(raw_password: str):
     pwd_bytes = raw_password.encode('utf-8')
     hashed = bcrypt.hashpw(pwd_bytes, bcrypt.gensalt())
-    return hashed
+    return hashed.hex()
 
 
 def get_password_decode(hashed):
@@ -17,10 +17,12 @@ def get_password_decode(hashed):
     return decode_pwd  # - returns the decoded password
 
 
-def check_pwd(raw_password: str, hashed_pwd_from_db: str):
-    hex_str = str(hashed_pwd_from_db)[2:]
-    hashed_clean = bytes.fromhex(hex_str).decode('utf-8')
-    return bcrypt.checkpw(raw_password.encode('utf-8'), hashed_clean.encode('utf-8'))
+def check_pwd(raw_password: str, hex_from_db: str):
+    try:
+        hashed_bytes = bytes.fromhex(hex_from_db)
+        return bcrypt.checkpw(raw_password.encode('utf-8'), hashed_bytes)
+    except (ValueError, TypeError):
+        return False
 
 
 SECRET_KEY = os.getenv("JWT_SECRET", "СУПЕР_ТАЕН_КЛЮЧ_ЗА_ПОЛИВАНЕ")
