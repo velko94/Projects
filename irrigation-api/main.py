@@ -14,20 +14,22 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-
 IS_AWS_LAMBDA = bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
 if IS_AWS_LAMBDA:
     app = FastAPI(
         title="Smart irrigation api (PROD)", root_path="/PROD/smart-irrigation-api"
     )
 else:
-    app = FastAPI( title="Smart irrigation api (ACC)")
+    app = FastAPI(title="Smart irrigation api (ACC)")
     from database.connection import engine, Base
+
     Base.metadata.create_all(bind=engine)
 
-def handler(event,context):
- asgi_handler = Mangum(app)
- return asgi_handler(event, context)
+
+def handler(event, context):
+    asgi_handler = Mangum(app)
+    return asgi_handler(event, context)
+
 
 limiter = Limiter(key_func=get_remote_address)
 # noinspection PyUnresolvedReferences
