@@ -8,18 +8,29 @@ from mangum import Mangum
 from datetime import datetime
 from pydantic_core import PydanticCustomError
 from starlette.responses import JSONResponse
-from database.connection import engine, Base
 from users import register_user, login_user
 from security import verify_jwt_token
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Smart Irrigation API")
-handler = Mangum(app)
+IS_AWS_LAMBDA = bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+if IS_AWS_LAMBDA:
+    app = FastAPI(
+        title="Smart irrigation api (PROD)", root_path="/PROD/smart-irrigation-api"
+    )
+else:
+    app = FastAPI( title="Smart irrigation api (ACC)")
+    from database.connection import engine, Base
+    Base.metadata.create_all(bind=engine)
+
+def handler(event,context):
+ asgi_handler = Mangum(app)
+ return asgi_handler(event, context)
+
 limiter = Limiter(key_func=get_remote_address)
+# noinspection PyUnresolvedReferences
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
