@@ -6,7 +6,9 @@ __pycache__/
 venv/
 ENV/
 .env
-
+aws_deploy/
+*.zip
+requirements_lambda.tmp
 # PyCharm системна папка
 .idea/
 
