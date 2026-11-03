@@ -1,9 +1,14 @@
-version: '3.8'
-
 services:
-  irrigation-app:
+  frontend:
+    build: ./frontend
+    container_name: irrigation-FE
+    ports:
+      - "8080:80"
+    depends_on:
+      - irrigation-backend
+  irrigation-backend:
     build: .
-    container_name: my-irrigation-app
+    container_name: irrigation-BE
     ports:
       - "8001:8000"
     environment:
