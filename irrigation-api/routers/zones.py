@@ -7,6 +7,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 router = APIRouter(prefix="/api/v1", tags=["Zones"])
 limiter = Limiter(key_func=get_remote_address)
+from security import verify_jwt_token
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
@@ -30,8 +31,8 @@ class SensorData(BaseModel):
 def check_zones():
     return Zones_db
 
-@router.post("/zones/{zone_id}/toggle", dependencies=[Depends(verify_api_key)])
-@limiter.limit("10/minute")
+@router.post("/zones/{zone_id}/toggle", dependencies=[Depends(verify_jwt_token)])
+@limiter.limit("5/minute")
 async def toggle(request: Request, zone_id: int):
     event_time = datetime.now()
     if zone_id not in Zones_db:

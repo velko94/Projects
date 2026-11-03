@@ -166,10 +166,10 @@ async function toggleZone(zoneId) {
         return;
     }
 
-    const headers = {
+  const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
-        "X-API-KEY": "SuperSecretKey123"
+//        "X-API-KEY": API_KEY
     };
 
     try {
@@ -178,17 +178,19 @@ async function toggleZone(zoneId) {
             headers: headers
         });
 
-        if (res.status === 401) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("username");
-            logoutUser();
-            alert("Сесията е изтекла или невалиден токен. Моля, влезте отново!");
-            openLoginModal();
-            return;
-        }
-
         if (!res.ok) {
             const errData = await res.json();
+
+            // Ако грешката е свързана с JWT токена (изтекъл или невалиден), тогава трием сесията
+            if (res.status === 401 && errData.detail !== "Wrong api key") {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("username");
+                logoutUser();
+                alert("Сесията е изтекла или невалиден токен. Моля, влезте отново!");
+                openLoginModal();
+                return;
+            }
+
             throw new Error(errData.detail || "Грешка при превключване");
         }
 

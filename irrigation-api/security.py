@@ -2,9 +2,11 @@ import os
 import bcrypt
 from datetime import datetime, timedelta, timezone
 import jwt
-from fastapi import HTTPException, Security
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import HTTPException, Security, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials,APIKeyHeader
+from config import API_KEY, API_KEY_NAME
 
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 def get_password_encode(raw_password: str):
     pwd_bytes = raw_password.encode('utf-8')
@@ -27,7 +29,7 @@ def check_pwd(raw_password: str, hex_from_db: str):
 
 SECRET_KEY = os.getenv("JWT_SECRET", "СУПЕР_ТАЕН_КЛЮЧ_ЗА_ПОЛИВАНЕ")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 security_bearer = HTTPBearer()
 
@@ -53,3 +55,8 @@ def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Security(securi
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate token")
+
+def verify_api_key(header_key: str = Security(api_key_header)):
+    if not header_key or header_key.strip().lower() != API_KEY.strip().lower():
+        raise HTTPException(status_code=401, detail="Wrong api key")
+    return header_key
