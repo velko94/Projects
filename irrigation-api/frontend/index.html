@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Irrigation Control Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Горе вдясно бутони за автентикация -->
+<div id="top-auth-bar" class="top-bar">
+    <div id="login-trigger-section">
+        <button onclick="openLoginModal()">Вход</button>
+        <button class="btn-secondary" onclick="openRegisterModal()">Регистрация</button>
+    </div>
+    <div id="user-info" style="display: none;">
+        <p>Добре дошъл, <span id="current-username"></span>!</p>
+        <button onclick="logoutUser()">Изход</button>
+    </div>
+</div>
+
+<h1>🌱 Ravna Smart Irrigation Panel</h1>
+
+<!-- Модален прозорец за Вход -->
+<div id="login-modal" class="modal">
+    <div class="modal-content card">
+        <span class="close-btn" onclick="closeLoginModal()">&times;</span>
+        <h3>Вход в системата</h3>
+        <form onsubmit="event.preventDefault(); loginUser();" novalidate>
+            <input type="text" id="login-username" placeholder="Потребителско име"><br><br>
+            <div class="password-container">
+                <input type="password" id="login-password" placeholder="Парола">
+                <span class="password-toggle" onclick="togglePasswordVisibility('login-password')">👁️</span>
+            </div>
+            <div id="login-error" class="error-msg"></div><br>
+            <button type="submit">Вход</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модален прозорец за Регистрация -->
+<div id="register-modal" class="modal">
+    <div class="modal-content card">
+        <span class="close-btn" onclick="closeRegisterModal()">&times;</span>
+        <h3>Регистрация на нов потребител</h3>
+        <form onsubmit="event.preventDefault(); registerUser();" novalidate>
+            <input type="text" id="reg-username" placeholder="Потребителско име"><br><br>
+            <div class="password-container">
+                <input type="password" id="reg-password" placeholder="Парола">
+                <span class="password-toggle" onclick="togglePasswordVisibility('reg-password')">👁️</span>
+            </div>
+            <div id="reg-error" class="error-msg"></div><br>
+            <button type="submit">Запиши се</button>
+        </form>
+    </div>
+</div>
+
+<!-- Централно табло със зоните -->
+<div class="grid" id="zones-container">
+    <div class="card" data-zone-id="1">
+        <h3 class="zone-name">Домати и пипер</h3>
+        <div class="status off">СПРЯНО</div>
+        <p class="zone-watered">Последно: Никога</p>
+        <button onclick="toggleZone(1)">Пусни / Спри</button>
+    </div>
+
+    <div class="card" data-zone-id="3">
+        <h3 class="zone-name">Краставици и тиквички</h3>
+        <div class="status off">СПРЯНО</div>
+        <p class="zone-watered">Последно: Никога</p>
+        <button onclick="toggleZone(3)">Пусни / Спри</button>
+    </div>
+
+    <div class="card" data-zone-id="4">
+        <h3 class="zone-name">Ягоди</h3>
+        <div class="status off">СПРЯНО</div>
+        <p class="zone-watered">Последно: Никога</p>
+        <button onclick="toggleZone(4)">Пусни / Спри</button>
+    </div>
+
+    <div class="card" data-zone-id="5">
+        <h3 class="zone-name">Дръвчета</h3>
+        <div class="status off">СПРЯНО</div>
+        <p class="zone-watered">Последно: Никога</p>
+        <button onclick="toggleZone(5)">Пусни / Спри</button>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

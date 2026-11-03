@@ -1,0 +1,186 @@
+body {
+    background-color: #1a1a2e;
+    color: #eaeaea;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Лента горе вдясно */
+.top-bar {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.top-bar p {
+    margin: 0 10px 0 0;
+    display: inline-block;
+}
+
+h1 {
+    color: #e94560;
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+/* Мрежа за картите в центъра */
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    padding: 20px;
+    width: 220px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.zone-name {
+    margin-top: 0;
+    color: #fff;
+    font-size: 18px;
+}
+
+.status {
+    font-weight: bold;
+    padding: 6px;
+    border-radius: 4px;
+    margin: 10px 0;
+    display: inline-block;
+    width: 80px;
+}
+
+.status.off {
+    background-color: #e94560;
+    color: #fff;
+}
+
+.status.on {
+    background-color: #4ecc6d;
+    color: #fff;
+}
+
+.zone-watered {
+    font-size: 13px;
+    color: #b0b0b0;
+    margin-bottom: 15px;
+}
+
+button {
+    background-color: #0f3460;
+    color: #fff;
+    border: 1px solid #e94560;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background-color: #e94560;
+}
+
+input {
+    width: 80%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #1f4068;
+    background: #0f3460;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+/* Модален прозорец */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    position: relative;
+    max-width: 350px;
+    margin: 10% auto;
+    text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    color: #e94560;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #e94560;
+}
+
+.btn-secondary:hover {
+    background: #e94560;
+    color: #fff;
+}
+.error-msg {
+    color: #e94560;
+    font-size: 12px;
+    margin-top: 5px;
+    min-height: 15px;
+    text-align: center;
+    padding: 0 10px;
+    word-break: break-word;
+}
+
+.password-container {
+    position: relative;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.password-container input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    padding-right: 35px; /* Оставяме място за окото отвътре */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #b0b0b0;
+    font-size: 16px;
+    user-select: none;
+}
+
+.error-msg {
+    color: #e94560;
+    font-size: 12px;
+    margin-top: 8px;
+    min-height: 15px;
+    text-align: center;
+    padding: 0 10px;
+    word-break: break-word;
+}
