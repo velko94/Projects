@@ -34,6 +34,7 @@ class UserRegister(BaseModel):
         return pwd_clean
 
 @router.post("/register")
+@limiter.limit("5/minute")
 def register_user_endpoint(user_data: UserRegister):
     return register_user(user_data.username, user_data.password)
 
