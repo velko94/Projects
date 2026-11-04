@@ -1,11 +1,17 @@
 services:
-  frontend:
+  irrigation-frontend:
     build: ./frontend
     container_name: irrigation-FE
     ports:
       - "8080:80"
     depends_on:
       - irrigation-backend
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+
   irrigation-backend:
     build: .
     container_name: irrigation-BE
@@ -20,9 +26,14 @@ services:
       - DB_HOST=${DB_HOST}
     restart: on-failure:5
     depends_on:
-      db:
+      irrigation-db:
         condition: service_healthy
-  db:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  irrigation-db:
     image: postgres:15-alpine
     container_name: irrigation-db
     environment:
@@ -34,6 +45,10 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     healthcheck:
       test: [ "CMD-SHELL","pg_isready -U $${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 3s
