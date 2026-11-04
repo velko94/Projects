@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request
 from pydantic import BaseModel, field_validator, Field
 import re
 from pydantic_core import PydanticCustomError
@@ -8,6 +8,7 @@ from slowapi.util import get_remote_address
 
 router = APIRouter(prefix="/api/v1", tags=["Auth"])
 limiter = Limiter(key_func=get_remote_address)
+
 
 class UserRegister(BaseModel):
     username: str = Field(...)
@@ -23,22 +24,29 @@ class UserRegister(BaseModel):
         if len(username_clean) < 3:
             raise PydanticCustomError('length_error', 'Потребителското име трябва да има поне 3 символа')
         if not re.match(r'^[a-zA-Z0-9_\u0400-\u04FF]+$', username_clean):
-            raise PydanticCustomError('value_error', "Потребителското име може да съдържа само букви цифри и долни черти")
+            raise PydanticCustomError('value_error',
+                                      "Потребителското име може да съдържа само букви цифри и долни черти")
         return username_clean
 
     @field_validator('password')
     def validate_password(cls, v):
         pwd_clean = v.strip()
-        if len(pwd_clean) < 5:
-            raise PydanticCustomError('length_error', 'Паролата трябва да е поне 5 символа')
+        if len(pwd_clean) < 8:
+            raise PydanticCustomError('length_error', 'Паролата трябва да е поне 8 символа')
+        common_weak_passwords = ["string", "123456", "password", "admin", "12345678"]
+        if pwd_clean.lower() in common_weak_passwords:
+            raise PydanticCustomError('weak_password', 'Тази парола е твърде лесна и не се разрешава')
+
         return pwd_clean
+
 
 @router.post("/register")
 @limiter.limit("5/minute")
-def register_user_endpoint(request:Request , user_data: UserRegister):
+def register_user_endpoint(request: Request, user_data: UserRegister):
     return register_user(user_data.username, user_data.password)
+
 
 @router.post("/login")
 @limiter.limit("5/minute")
-def login_endpoint(request:Request , user_data: UserRegister):
+def login_endpoint(request: Request, user_data: UserRegister):
     return login_user(user_data.username, user_data.password)

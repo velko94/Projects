@@ -1,15 +1,17 @@
 const API_URL = "http://localhost:8001/api/v1";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("access_token");
     const username = localStorage.getItem("username");
 
-    if (token && username) {
+    if (token && username && !isTokenExpired(token)) {
         showLoggedInView(username);
     } else {
-        logoutUser();
+        // Само скриваме секцията за вход, без рефреши!
+        document.getElementById("login-trigger-section").style.display = "block";
+        document.getElementById("user-info").style.display = "none";
     }
-    fetchZones();
+    await fetchZones();
 });
 
 function openLoginModal() {
@@ -34,14 +36,12 @@ function closeRegisterModal() {
     document.getElementById("register-modal").style.display = "none";
 }
 
-/// Четем грешките директно от бЕкенд Pydantic отговора (включително regex валидациите за специални символи)
 async function parseErrorResponse(response) {
     try {
         const errData = await response.json();
         if (typeof errData.detail === "string") {
             return errData.detail;
         } else if (Array.isArray(errData.detail)) {
-            // Тук хващаме грешките от Pydantic рутера (като regex несъответствията) и ги обединяваме
             return errData.detail.map(e => e.msg || JSON.stringify(e)).join(", ");
         }
         return "Възникна грешка.";
@@ -68,9 +68,15 @@ async function registerUser() {
             document.getElementById("reg-password").value = "";
             throw new Error(errorMsg);
         }
+        errorDiv.style.color = "lightgreen";
+        errorDiv.textContent = "Успешна регистрация! Пренасочване към вход...";
 
-        closeRegisterModal();
-        openLoginModal();
+        setTimeout(() => {
+            closeRegisterModal();
+            openLoginModal();
+            document.getElementById("login-username").value = username;
+            errorDiv.style.color = "";
+        }, 1500);
     } catch (err) {
         errorDiv.textContent = err.message;
     }
@@ -105,6 +111,10 @@ async function loginUser() {
 
         document.getElementById("login-username").value = "";
         document.getElementById("login-password").value = "";
+
+        // Плавна смяна към реалните карти без презареждане на страницата
+        await fetchZones();
+
     } catch (err) {
         errorDiv.textContent = err.message;
     }
@@ -115,6 +125,9 @@ function logoutUser() {
     localStorage.removeItem("username");
     document.getElementById("login-trigger-section").style.display = "block";
     document.getElementById("user-info").style.display = "none";
+
+    // Вместо location.reload(), просто извикваме fetchZones да нарисува дъми картите на живо!
+    fetchZones();
 }
 
 function showLoggedInView(username) {
@@ -124,14 +137,56 @@ function showLoggedInView(username) {
 }
 
 async function fetchZones() {
+    const token = localStorage.getItem("access_token");
+    const username = localStorage.getItem("username");
+    const isLogged = token && username && !isTokenExpired(token);
+
+    const container = document.getElementById("zones-container");
+    container.innerHTML = ""; // Винаги изчистваме преди ново рисуване
+
+    if (!isLogged) {
+        // --- ДЪМИ КАРТИ (Когато НЕ е влязъл) ---
+        const dummyZones = [
+            { name: "Домати (примерна)", status: "off", watered: "Никога" },
+            { name: "Пипер (примерна)", status: "off", watered: "Никога" }
+        ];
+
+        dummyZones.forEach(zone => {
+            const cardHTML = `
+                <div class="card" style="opacity: 0.75;">
+                    <h3 class="zone-name">${zone.name}</h3>
+                    <div class="status off">СПРЯНО</div>
+                    <p class="zone-watered">Последно: ${zone.watered}</p>
+                    <button onclick="openLoginModal()" style="background-color: #555; cursor: pointer;">Влез за управление</button>
+                </div>
+            `;
+            container.innerHTML += cardHTML;
+        });
+        return;
+    }
+
     try {
-        const response = await fetch(`${API_URL}/zones`);
+        // --- РЕАЛНИ КАРТИ (Когато Е влязъл) ---
+        const response = await fetch(`${API_URL}/zones`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Ако токенът е изтекъл на бекенда, чистим и зареждаме дъми картите без рушене
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("username");
+                document.getElementById("login-trigger-section").style.display = "block";
+                document.getElementById("user-info").style.display = "none";
+                await fetchZones();
+                return;
+            }
+            throw new Error("Грешка при зареждане");
+        }
+
         const zones = await response.json();
-
-        const container = document.getElementById("zones-container");
-        container.innerHTML = ""; // Изчистваме старите статични карти
-
-        // Ако бекендът връща обект или масив, го адаптираме:
         const zonesArray = Array.isArray(zones) ? zones : Object.entries(zones).map(([id, z]) => ({ id, ...z }));
 
         zonesArray.forEach(zone => {
@@ -165,7 +220,7 @@ async function toggleZone(zoneId) {
         return;
     }
 
-  const headers = {
+    const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
     };
@@ -179,7 +234,6 @@ async function toggleZone(zoneId) {
         if (!res.ok) {
             const errData = await res.json();
 
-            // Ако грешката е свързана с JWT токена (изтекъл или невалиден), тогава трием сесията
             if (res.status === 401 && errData.detail !== "Wrong api key") {
                 localStorage.removeItem("access_token");
                 localStorage.removeItem("username");
@@ -192,7 +246,7 @@ async function toggleZone(zoneId) {
             throw new Error(errData.detail || "Грешка при превключване");
         }
 
-        fetchZones();
+        await fetchZones();
     } catch (err) {
         alert(err.message);
     }
@@ -204,5 +258,15 @@ function togglePasswordVisibility(fieldId) {
         passwordInput.type = "text";
     } else {
         passwordInput.type = "password";
+    }
+}
+
+function isTokenExpired(token) {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expirationTime = payload.exp * 1000;
+        return Date.now() >= expirationTime;
+    } catch (e) {
+        return true;
     }
 }
