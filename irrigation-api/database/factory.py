@@ -1,5 +1,8 @@
 import os
-from database.dynamo_repo import DynamoUserRepository
+from config import IS_AWS_LAMBDA
+from database.dynamo_repo import DynamoUserRepository,DynamoZoneRepository
+from database.postgres_repo import PostgresZoneRepository
+from database.base import BaseZoneRepository
 
 
 def get_user_repository():
@@ -19,5 +22,8 @@ def get_user_repository():
     else:
         raise ValueError(f"Неподдържана базa данни: {db_type}")
 
-
-user_db = get_user_repository()
+def get_zone_repository() -> BaseZoneRepository:
+    if IS_AWS_LAMBDA:
+        return DynamoZoneRepository()
+    else:
+        return PostgresZoneRepository()

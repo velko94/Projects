@@ -126,33 +126,32 @@ function showLoggedInView(username) {
 async function fetchZones() {
     try {
         const response = await fetch(`${API_URL}/zones`);
-        const zonesData = await response.json();
+        const zones = await response.json();
 
-        for (const [id, zone] of Object.entries(zonesData)) {
-            const card = document.querySelector(`.card[data-zone-id="${id}"]`);
-            if (!card) continue;
+        const container = document.getElementById("zones-container");
+        container.innerHTML = ""; // Изчистваме старите статични карти
 
-            const nameEl = card.querySelector(".zone-name");
-            const statusEl = card.querySelector(".status");
-            const wateredEl = card.querySelector(".zone-watered");
+        // Ако бекендът връща обект или масив, го адаптираме:
+        const zonesArray = Array.isArray(zones) ? zones : Object.entries(zones).map(([id, z]) => ({ id, ...z }));
 
-            if (nameEl) nameEl.textContent = zone.name;
-
-            const lastWateredText = zone.last_watered && zone.last_watered !== "Never"
+        zonesArray.forEach(zone => {
+            const isWorking = zone.status === "on";
+            const statusClass = isWorking ? "status on" : "status off";
+            const statusText = isWorking ? "РАБОТИ" : "СПРЯНО";
+            const lastWatered = zone.last_watered && zone.last_watered !== "Never"
                 ? zone.last_watered
                 : "Никога";
-            if (wateredEl) wateredEl.textContent = `Последно: ${lastWateredText}`;
 
-            if (statusEl) {
-                if (zone.status === "on") {
-                    statusEl.className = "status on";
-                    statusEl.textContent = "РАБОТИ";
-                } else {
-                    statusEl.className = "status off";
-                    statusEl.textContent = "СПРЯНО";
-                }
-            }
-        }
+            const cardHTML = `
+                <div class="card" data-zone-id="${zone.id}">
+                    <h3 class="zone-name">${zone.name}</h3>
+                    <div class="${statusClass}">${statusText}</div>
+                    <p class="zone-watered">Последно: ${lastWatered}</p>
+                    <button onclick="toggleZone(${zone.id})">Пусни / Спри</button>
+                </div>
+            `;
+            container.innerHTML += cardHTML;
+        });
     } catch (error) {
         console.error("Грешка при зареждане на данните:", error);
     }
@@ -169,7 +168,6 @@ async function toggleZone(zoneId) {
   const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
-//        "X-API-KEY": API_KEY
     };
 
     try {

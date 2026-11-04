@@ -35,10 +35,10 @@ class UserRegister(BaseModel):
 
 @router.post("/register")
 @limiter.limit("5/minute")
-def register_user_endpoint(user_data: UserRegister):
+def register_user_endpoint(request:Request , user_data: UserRegister):
     return register_user(user_data.username, user_data.password)
 
 @router.post("/login")
 @limiter.limit("5/minute")
-def login_endpoint(request: Request, user_data: UserRegister):
+def login_endpoint(request:Request , user_data: UserRegister):
     return login_user(user_data.username, user_data.password)

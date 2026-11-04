@@ -1,20 +1,20 @@
 from fastapi import HTTPException
 from security import get_password_encode, check_pwd, create_access_token
-from database.factory import user_db
+from database.factory import get_user_repository
 
 
 def register_user(username_input: str, raw_password: str):
-    existing_user = user_db.get_user_by_username(username_input)
+    existing_user = get_user_repository().get_user_by_username(username_input)
     if existing_user:
         raise HTTPException(status_code=400, detail="Този потребител вече съществува")
 
     hashed_string = get_password_encode(raw_password)
-    user_db.create_user(username_input, hashed_string)
+    get_user_repository().create_user(username_input, hashed_string)
     return {"status": "success", "message": f"Потребител {username_input} е регистриран успешно"}
 
 
 def login_user(username_input: str, raw_password: str):
-    user_record = user_db.get_user_by_username(username_input)
+    user_record = get_user_repository().get_user_by_username(username_input)
     if not user_record:
         raise HTTPException(status_code=400, detail="Грешно потребителско име или парола")
     hashed_password_from_db = user_record[1]
