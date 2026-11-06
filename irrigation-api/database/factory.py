@@ -1,5 +1,5 @@
 import os
-from config import IS_AWS_LAMBDA
+from backend.config import IS_AWS_LAMBDA
 from database.base import BaseUserRepository, BaseZoneRepository
 
 

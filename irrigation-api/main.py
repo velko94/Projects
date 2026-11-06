@@ -7,7 +7,7 @@ from mangum import Mangum
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from config import IS_AWS_LAMBDA
+from backend.config import IS_AWS_LAMBDA
 from routers import auth, zones
 from database.postgres_repo import init_db
 

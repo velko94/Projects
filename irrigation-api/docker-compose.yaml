@@ -13,7 +13,9 @@ services:
 
 
   irrigation-backend:
-    build: .
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: irrigation-BE
     ports:
       - "8001:8000"

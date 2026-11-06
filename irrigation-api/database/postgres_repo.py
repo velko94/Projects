@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-
 from database.base import BaseUserRepository, BaseZoneRepository
 from sqlalchemy import Column, Integer, String, text
 from database.connection import Base, SessionLocal, User, engine
@@ -73,7 +72,7 @@ class PostgresZoneRepository(BaseZoneRepository):
     def add_zone(self, name: str) -> dict:
         db = SessionLocal()
         try:
-            # Проверка за дубликат по име преди добавяне
+            # check if zone exists before adding
             existing_zone = db.query(ZoneModel).filter(ZoneModel.name == name).first()
             if existing_zone:
                 raise HTTPException(status_code=400, detail="Зона с това име вече съществува!")

@@ -13,27 +13,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchZones();
 });
 
-function openLoginModal() {
-    document.getElementById("login-error").textContent = "";
-    document.getElementById("login-username").value = "";
-    document.getElementById("login-password").value = "";
-    document.getElementById("login-modal").style.display = "block";
+// for managing the modals (open/close)
+function toggleModal(modalId, show = true) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.style.display = show ? "block" : "none";
+
+    if (show) {
+        //clear errors on open
+        const errorEl = modal.querySelector(".error-msg, [id$='error']");
+        if (errorEl) errorEl.textContent = "";
+
+        const inputEl = modal.querySelector("input");
+        if (inputEl) inputEl.value = "";
+    }
 }
 
-function closeLoginModal() {
-    document.getElementById("login-modal").style.display = "none";
-}
 
-function openRegisterModal() {
-    document.getElementById("reg-error").textContent = "";
-    document.getElementById("reg-username").value = "";
-    document.getElementById("reg-password").value = "";
-    document.getElementById("register-modal").style.display = "block";
-}
+function openLoginModal() { toggleModal("login-modal", true); }
+function closeLoginModal() { toggleModal("login-modal", false); }
 
-function closeRegisterModal() {
-    document.getElementById("register-modal").style.display = "none";
-}
+function openRegisterModal() { toggleModal("register-modal", true); }
+function closeRegisterModal() { toggleModal("register-modal", false); }
+
+function openAddZoneModal() { toggleModal("add-zone-modal", true); }
+function closeAddZoneModal() { toggleModal("add-zone-modal", false); }
+
 
 async function parseErrorResponse(response) {
     try {
@@ -147,33 +153,19 @@ async function fetchZones() {
         ];
 
         dummyZones.forEach(zone => {
-            const cardHTML = `
-                <div class="card" style="opacity: 0.75;">
-                    <h3 class="zone-name">${zone.name}</h3>
-                    <div class="status off">СПРЯНО</div>
-                    <p class="zone-watered">Последно: ${zone.watered}</p>
-                    <button onclick="openLoginModal()" style="background-color: #555; cursor: pointer;">Влез за управление</button>
-                </div>
-            `;
-            container.innerHTML += cardHTML;
+            renderZoneCard(zone, container, true); // true за примерна/неактивна карта
         });
         return;
     }
 
     try {
         const response = await fetch(`${API_URL}/zones`, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
+            headers: { "Authorization": `Bearer ${token}` }
         });
 
         if (!response.ok) {
             if (response.status === 401) {
-                localStorage.removeItem("access_token");
-                localStorage.removeItem("username");
-                document.getElementById("login-trigger-section").style.display = "block";
-                document.getElementById("user-info").style.display = "none";
-                await fetchZones();
+                logoutUser();
                 return;
             }
             throw new Error("Грешка при зареждане");
@@ -183,27 +175,49 @@ async function fetchZones() {
         const zonesArray = Array.isArray(zones) ? zones : Object.entries(zones).map(([id, z]) => ({ id, ...z }));
 
         zonesArray.forEach(zone => {
-            const isWorking = zone.status === "on";
-            const statusClass = isWorking ? "status on" : "status off";
-            const statusText = isWorking ? "РАБОТИ" : "СПРЯНО";
-            const lastWatered = zone.last_watered && zone.last_watered !== "Never"
-                ? zone.last_watered
-                : "Никога";
-
-            const cardHTML = `
-                <div class="card" data-zone-id="${zone.id}">
-                    <h3 class="zone-name">${zone.name}</h3>
-                    <div class="${statusClass}">${statusText}</div>
-                    <p class="zone-watered">Последно: ${lastWatered}</p>
-                    <button onclick="toggleZone(${zone.id})">Пусни / Спри</button>
-                    <button onclick="deleteZone(${zone.id})" style="background-color: #d9534f; margin-top: 5px;">Изтрий</button>
-                </div>
-            `;
-            container.innerHTML += cardHTML;
+            renderZoneCard(zone, container, false);
         });
     } catch (error) {
         console.error("Грешка при зареждане на данните:", error);
     }
+}
+
+// Помощна функция за рендване с HTML <template>
+function renderZoneCard(zone, container, isDummy = false) {
+    const template = document.getElementById("zone-card-template");
+    const clone = template.content.cloneNode(true);
+
+    const cardDiv = clone.querySelector(".card");
+    const nameEl = clone.querySelector(".zone-name");
+    const statusEl = clone.querySelector(".zone-status");
+    const wateredEl = clone.querySelector(".zone-watered");
+    const toggleBtn = clone.querySelector(".btn-toggle");
+    const deleteBtn = clone.querySelector(".btn-delete");
+
+    nameEl.textContent = zone.name;
+
+    if (isDummy) {
+        cardDiv.style.opacity = "0.75";
+        statusEl.className = "status off";
+        statusEl.textContent = "СПРЯНО";
+        wateredEl.textContent = `Последно: ${zone.watered}`;
+        toggleBtn.textContent = "Влез за управление";
+        toggleBtn.setAttribute("onclick", "openLoginModal()");
+        deleteBtn.style.display = "none"; // Скриваме изтриването за примерните
+    } else {
+        cardDiv.setAttribute("data-zone-id", zone.id);
+        const isWorking = zone.status === "on";
+        statusEl.className = isWorking ? "status on" : "status off";
+        statusEl.textContent = isWorking ? "РАБОТИ" : "СПРЯНО";
+
+        const lastWatered = zone.last_watered && zone.last_watered !== "Never" ? zone.last_watered : "Никога";
+        wateredEl.textContent = `Последно: ${lastWatered}`;
+
+        toggleBtn.setAttribute("onclick", `toggleZone(${zone.id})`);
+        deleteBtn.setAttribute("onclick", `deleteZone(${zone.id})`);
+    }
+
+    container.appendChild(clone);
 }
 
 async function toggleZone(zoneId) {
@@ -228,7 +242,7 @@ async function toggleZone(zoneId) {
         if (!res.ok) {
             const errData = await res.json();
 
-            if (res.status === 401 && errData.detail !== "Wrong api key") {
+            if (res.status === 401) {
                 localStorage.removeItem("access_token");
                 localStorage.removeItem("username");
                 logoutUser();
@@ -332,15 +346,4 @@ async function deleteZone(zoneId) {
     } catch (err) {
         alert(err.message);
     }
-}
-
-function openAddZoneModal() {
-    const err = document.getElementById("add-zone-error");
-    if (err) err.textContent = "";
-    document.getElementById("newZoneName").value = "";
-    document.getElementById("add-zone-modal").style.display = "block";
-}
-
-function closeAddZoneModal() {
-    document.getElementById("add-zone-modal").style.display = "none";
 }

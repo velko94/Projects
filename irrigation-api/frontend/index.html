@@ -38,6 +38,18 @@
         </form>
     </div>
 </div>
+<!-- Модален прозорец за Добавяне на зона -->
+<div id="add-zone-modal" class="modal">
+    <div class="modal-content card">
+        <span class="close-btn" onclick="closeAddZoneModal()">&times;</span>
+        <h3>Добавяне на нова зона</h3>
+        <form onsubmit="event.preventDefault(); addZone();">
+            <input type="text" id="newZoneName" placeholder="Име на зоната (напр. Оранжерия)"><br><br>
+            <div id="add-zone-error" class="error-msg"></div><br>
+            <button type="submit">Запиши зоната</button>
+        </form>
+    </div>
+</div>
 
 <!-- Модален прозорец за Регистрация -->
 <div id="register-modal" class="modal">
@@ -56,21 +68,18 @@
     </div>
 </div>
 
+<template id="zone-card-template">
+    <div class="card">
+        <h3 class="zone-name"></h3>
+        <div class="zone-status"></div>
+        <p class="zone-watered"></p>
+        <button class="btn-toggle">Пусни / Спри</button>
+        <button class="btn-delete" style="background-color: #d9534f; margin-top: 5px;">Изтрий</button>
+    </div>
+</template>
+
 <!-- Централно табло със зоните -->
 <div class="grid" id="zones-container">
-</div>
-
-<!-- Модален прозорец за Добавяне на зона -->
-<div id="add-zone-modal" class="modal">
-    <div class="modal-content card">
-        <span class="close-btn" onclick="closeAddZoneModal()">&times;</span>
-        <h3>Добавяне на нова зона</h3>
-        <form onsubmit="event.preventDefault(); addZone();">
-            <input type="text" id="newZoneName" placeholder="Име на зоната (напр. Оранжерия)"><br><br>
-            <div id="add-zone-error" class="error-msg"></div><br>
-            <button type="submit">Запиши зоната</button>
-        </form>
-    </div>
 </div>
 
 <script src="app.js"></script>

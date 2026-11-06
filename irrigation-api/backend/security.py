@@ -2,9 +2,9 @@ import os
 import bcrypt
 from datetime import datetime, timedelta, timezone
 import jwt
-from fastapi import HTTPException, Security, HTTPException, Depends
+from fastapi import Security, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials,APIKeyHeader
-from config import API_KEY, API_KEY_NAME
+from backend.config import API_KEY, API_KEY_NAME
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 

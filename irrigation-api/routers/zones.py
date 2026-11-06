@@ -2,12 +2,12 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from datetime import datetime
 import database.factory
-from config import API_KEY, API_KEY_NAME
+from backend.config import API_KEY, API_KEY_NAME
 from fastapi.security import APIKeyHeader
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from database.factory import get_zone_repository
-from security import verify_jwt_token
+from backend.security import verify_jwt_token
 
 router = APIRouter(prefix="/api/v1", tags=["Zones"])
 limiter = Limiter(key_func=get_remote_address)
