@@ -13,8 +13,9 @@
         <button onclick="openLoginModal()">Вход</button>
         <button class="btn-secondary" onclick="openRegisterModal()">Регистрация</button>
     </div>
-    <div id="user-info" style="display: none;">
-        <p>Добре дошъл, <span id="current-username"></span>!</p>
+    <div id="user-info" style="display: none; align-items: center; gap: 10px;">
+        <p style="margin: 0;">Добре дошъл, <span id="current-username"></span>!</p>
+        <button onclick="openAddZoneModal()" style="background-color: #4CAF50; cursor: pointer;">+ Добави зона</button>
         <button onclick="logoutUser()">Изход</button>
     </div>
 </div>
@@ -54,8 +55,22 @@
         </form>
     </div>
 </div>
+
 <!-- Централно табло със зоните -->
 <div class="grid" id="zones-container">
+</div>
+
+<!-- Модален прозорец за Добавяне на зона -->
+<div id="add-zone-modal" class="modal">
+    <div class="modal-content card">
+        <span class="close-btn" onclick="closeAddZoneModal()">&times;</span>
+        <h3>Добавяне на нова зона</h3>
+        <form onsubmit="event.preventDefault(); addZone();">
+            <input type="text" id="newZoneName" placeholder="Име на зоната (напр. Оранжерия)"><br><br>
+            <div id="add-zone-error" class="error-msg"></div><br>
+            <button type="submit">Запиши зоната</button>
+        </form>
+    </div>
 </div>
 
 <script src="app.js"></script>

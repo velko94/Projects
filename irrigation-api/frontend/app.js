@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (token && username && !isTokenExpired(token)) {
         showLoggedInView(username);
     } else {
-        // Само скриваме секцията за вход, без рефреши!
         document.getElementById("login-trigger-section").style.display = "block";
         document.getElementById("user-info").style.display = "none";
     }
@@ -112,7 +111,6 @@ async function loginUser() {
         document.getElementById("login-username").value = "";
         document.getElementById("login-password").value = "";
 
-        // Плавна смяна към реалните карти без презареждане на страницата
         await fetchZones();
 
     } catch (err) {
@@ -125,8 +123,6 @@ function logoutUser() {
     localStorage.removeItem("username");
     document.getElementById("login-trigger-section").style.display = "block";
     document.getElementById("user-info").style.display = "none";
-
-    // Вместо location.reload(), просто извикваме fetchZones да нарисува дъми картите на живо!
     fetchZones();
 }
 
@@ -142,10 +138,9 @@ async function fetchZones() {
     const isLogged = token && username && !isTokenExpired(token);
 
     const container = document.getElementById("zones-container");
-    container.innerHTML = ""; // Винаги изчистваме преди ново рисуване
+    container.innerHTML = "";
 
     if (!isLogged) {
-        // --- ДЪМИ КАРТИ (Когато НЕ е влязъл) ---
         const dummyZones = [
             { name: "Домати (примерна)", status: "off", watered: "Никога" },
             { name: "Пипер (примерна)", status: "off", watered: "Никога" }
@@ -166,7 +161,6 @@ async function fetchZones() {
     }
 
     try {
-        // --- РЕАЛНИ КАРТИ (Когато Е влязъл) ---
         const response = await fetch(`${API_URL}/zones`, {
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -175,7 +169,6 @@ async function fetchZones() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Ако токенът е изтекъл на бекенда, чистим и зареждаме дъми картите без рушене
                 localStorage.removeItem("access_token");
                 localStorage.removeItem("username");
                 document.getElementById("login-trigger-section").style.display = "block";
@@ -203,6 +196,7 @@ async function fetchZones() {
                     <div class="${statusClass}">${statusText}</div>
                     <p class="zone-watered">Последно: ${lastWatered}</p>
                     <button onclick="toggleZone(${zone.id})">Пусни / Спри</button>
+                    <button onclick="deleteZone(${zone.id})" style="background-color: #d9534f; margin-top: 5px;">Изтрий</button>
                 </div>
             `;
             container.innerHTML += cardHTML;
@@ -269,4 +263,84 @@ function isTokenExpired(token) {
     } catch (e) {
         return true;
     }
+}
+
+async function addZone() {
+    const zoneNameInput = document.getElementById('newZoneName');
+    const errorDiv = document.getElementById('add-zone-error');
+    const name = zoneNameInput.value.trim();
+    if (errorDiv) errorDiv.textContent = "";
+
+    if (!name) {
+        if (errorDiv) errorDiv.textContent = "Моля, въведете име на зоната!";
+        return;
+    }
+
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        alert("Моля, влезте в системата!");
+        openLoginModal();
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/zones`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name: name })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.detail || "Грешка при създаване на зоната");
+        }
+
+        zoneNameInput.value = '';
+        closeAddZoneModal();
+        await fetchZones();
+    } catch (err) {
+        if (errorDiv) errorDiv.textContent = err.message;
+    }
+}
+
+async function deleteZone(zoneId) {
+    if (!confirm("Сигурни ли сте, че искате да изтриете тази зона?")) return;
+
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        alert("Моля, влезте в системата!");
+        openLoginModal();
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/zones/${zoneId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Грешка при изтриване на зоната");
+        }
+
+        await fetchZones();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+function openAddZoneModal() {
+    const err = document.getElementById("add-zone-error");
+    if (err) err.textContent = "";
+    document.getElementById("newZoneName").value = "";
+    document.getElementById("add-zone-modal").style.display = "block";
+}
+
+function closeAddZoneModal() {
+    document.getElementById("add-zone-modal").style.display = "none";
 }

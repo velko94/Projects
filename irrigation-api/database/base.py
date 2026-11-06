@@ -17,3 +17,11 @@ class BaseZoneRepository(ABC):
     @abstractmethod
     def toggle_zone(self, zone_id: int, event_time: str) -> dict:
         pass
+
+    @abstractmethod
+    def add_zone(self, name: str) -> dict:
+        pass
+
+    @abstractmethod
+    def delete_zone(self, zone_id: int) -> bool:
+        pass
