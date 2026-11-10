@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Database Factory module.
 Dynamically determines and instantiates the appropriate repository (PostgreSQL or DynamoDB)
@@ -25,10 +26,23 @@ def get_user_repository() -> BaseUserRepository:
     print(f"---- FACTORY: Initializing User Repository with DB_TYPE: {db_type} ----")
 
     if db_type == "postgres":
+=======
+import os
+from database.dynamo_repo import DynamoUserRepository
+
+
+def get_user_repository():
+    db_type = os.getenv("DB_TYPE", "dynamo").lower()
+    print(f"---- DATABASE FACTORY INITIALIZING WITH DB_TYPE:{db_type} ----")
+    if db_type == "dynamo":
+        return DynamoUserRepository()
+    elif db_type == "postgres":
+>>>>>>> origin/master
         try:
             from database.postgres_repo import PostgresUserRepository
             return PostgresUserRepository()
         except ImportError as e:
+<<<<<<< HEAD
             raise RuntimeError("PostgreSQL repository selected, but required dependencies are missing.") from e
     elif db_type == "dynamo":
         from database.dynamo_repo import DynamoUserRepository
@@ -53,3 +67,14 @@ def get_zone_repository() -> BaseZoneRepository:
         return DynamoZoneRepository()
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
+=======
+            raise RuntimeError(
+                "Postgres репо-то е избрано (DB_TYPE = postgres), "
+                "но липсват SQLAlchemy или postgres_repo зависимости в средата"
+            ) from e
+    else:
+        raise ValueError(f"Неподдържана базa данни: {db_type}")
+
+
+user_db = get_user_repository()
+>>>>>>> origin/master

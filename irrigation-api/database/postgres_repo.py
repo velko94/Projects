@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 PostgreSQL repository implementation using SQLAlchemy.
 Handles database initialization, user persistence, and irrigation zone CRUD operations.
@@ -22,12 +23,27 @@ class PostgresUserRepository(BaseUserRepository):
         db = SessionLocal()
         try:
             query = text("SELECT username, user_password FROM users WHERE username = :user")
+=======
+from sqlalchemy import text
+from database.connection import SessionLocal, User
+from database.base import BaseUserRepository
+
+
+class PostgresUserRepository(BaseUserRepository):
+    def get_user_by_username(self, username: str):
+        db = SessionLocal()
+        try:
+            query = text("SELECT username, user_password FROM users WHERE username =:user ")
+>>>>>>> origin/master
             return db.execute(query, {"user": username}).fetchone()
         finally:
             db.close()
 
     def create_user(self, username: str, hashed_pwd: str):
+<<<<<<< HEAD
         """Creates and persists a new user with a hashed password."""
+=======
+>>>>>>> origin/master
         db = SessionLocal()
         try:
             db_user = User(username=username, user_password=hashed_pwd)
@@ -37,6 +53,7 @@ class PostgresUserRepository(BaseUserRepository):
             return db_user
         finally:
             db.close()
+<<<<<<< HEAD
 
 
 class ZoneModel(Base):
@@ -120,3 +137,5 @@ class PostgresZoneRepository(BaseZoneRepository):
             return True
         finally:
             db.close()
+=======
+>>>>>>> origin/master

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 AWS DynamoDB repository implementation using Boto3.
 Handles serverless user persistence and irrigation zone management for AWS deployments.
@@ -11,6 +12,14 @@ from database.base import BaseUserRepository, BaseZoneRepository
 class DynamoUserRepository(BaseUserRepository):
     """Repository handling user data operations against AWS DynamoDB."""
 
+=======
+import os
+import boto3
+from database.base import BaseUserRepository
+
+
+class DynamoUserRepository(BaseUserRepository):
+>>>>>>> origin/master
     def __init__(self):
         table_name = os.getenv("DYNAMODB_TABLE_USERS", "users")
         region = os.getenv("AWS_REGION", "eu-central-1")
@@ -18,7 +27,10 @@ class DynamoUserRepository(BaseUserRepository):
         self.table = dynamodb.Table(table_name)
 
     def get_user_by_username(self, username: str):
+<<<<<<< HEAD
         """Retrieves a user record by username from DynamoDB."""
+=======
+>>>>>>> origin/master
         response = self.table.get_item(Key={"username": username})
         item = response.get("Item")
         if item:
@@ -26,7 +38,10 @@ class DynamoUserRepository(BaseUserRepository):
         return None
 
     def create_user(self, username: str, hashed_pwd: str):
+<<<<<<< HEAD
         """Persists a new user record into the DynamoDB users table."""
+=======
+>>>>>>> origin/master
         self.table.put_item(
             Item={
                 "username": username,
@@ -34,6 +49,7 @@ class DynamoUserRepository(BaseUserRepository):
             }
         )
         return True
+<<<<<<< HEAD
 
 
 class DynamoZoneRepository(BaseZoneRepository):
@@ -86,3 +102,5 @@ class DynamoZoneRepository(BaseZoneRepository):
             "status": new_status,
             "last_watered": new_watered
         }
+=======
+>>>>>>> origin/master
