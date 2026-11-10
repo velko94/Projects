@@ -1,3 +1,8 @@
+"""
+Main application entry point for the Smart Irrigation API.
+Handles FastAPI app initialization, middleware, rate limiting, exception handlers,
+database lifespan events, and AWS Lambda integration.
+"""
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -13,6 +18,10 @@ from database.postgres_repo import init_db
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    """
+        Manages application startup and shutdown events.
+        Automatically initializes the database tables on startup.
+        """
     try:
         init_db()
         print("Базата данни е проверена и основните таблици са създадени успешно.")
@@ -20,13 +29,14 @@ async def lifespan(_: FastAPI):
         print(f"Грешка при инициализация на базата данни: {e}")
     yield
 
+# Initialize FastAPI application with dynamic titles and root paths based on environment
 app = FastAPI(
-    title="Smart Irrigation API (PROD)" if IS_AWS_LAMBDA else "Smart Irrigation API (ACC)",
+    title="Smart Irrigation API (Cloud - AWS)" if IS_AWS_LAMBDA else "Smart Irrigation API (Local - Docker)",
     root_path="/PROD/smart-irrigation-api" if IS_AWS_LAMBDA else "",
     lifespan=lifespan
 )
 
-# CORS с # type: ignore to ignore the pycharm warning
+# Configure CORS policies
 app.add_middleware(
     CORSMiddleware, # type: ignore
     allow_origins=["*"],
@@ -35,12 +45,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rate Limiter
+# Initialize Rate Limiter based on client IP address
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter # type: ignore
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Custom Validation Exception Handler
+"""
+Custom exception handler for validation errors.
+Cleans up error details by removing raw input objects for a cleaner response.
+"""
 @app.exception_handler(RequestValidationError)
 async def custom_validation_exception_handler(_request: Request, exc: RequestValidationError):
     cleaned_errors = []
@@ -53,11 +66,15 @@ async def custom_validation_exception_handler(_request: Request, exc: RequestVal
         content={"detail": cleaned_errors},
     )
 
-# routers
+# Register API route modules
 app.include_router(auth.router)
 app.include_router(zones.router)
 
-# AWS Lambda Handler (Mangum)
+
 def handler(event, context):
+    """
+        AWS Lambda handler function using Mangum adapter.
+        Translates AWS API Gateway events to ASGI for FastAPI execution.
+        """
     asgi_handler = Mangum(app)
     return asgi_handler(event, context)

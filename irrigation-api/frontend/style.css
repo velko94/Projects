@@ -1,3 +1,6 @@
+/* ==========================================
+   1. Global Styles & Reset
+   ========================================== */
 body {
     background-color: #1a1a2e;
     color: #eaeaea;
@@ -7,7 +10,15 @@ body {
     text-align: center;
 }
 
-/* Лента горе вдясно */
+h1 {
+    color: #e94560;
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+/* ==========================================
+   2. Top Navigation & Auth Bar
+   ========================================== */
 .top-bar {
     position: absolute;
     top: 20px;
@@ -22,13 +33,19 @@ body {
     display: inline-block;
 }
 
-h1 {
-    color: #e94560;
-    margin-top: 50px;
-    margin-bottom: 40px;
+.user-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Мрежа за картите в центъра */
+.welcome-text {
+    margin: 0;
+}
+
+/* ==========================================
+   3. Dashboard Grid & Cards
+   ========================================== */
 .grid {
     display: flex;
     flex-wrap: wrap;
@@ -47,12 +64,26 @@ h1 {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Sample/Dummy card styling for unauthenticated users */
+.card.sample-card {
+    opacity: 0.75;
+}
+
 .zone-name {
     margin-top: 0;
     color: #fff;
     font-size: 18px;
 }
 
+.zone-watered {
+    font-size: 13px;
+    color: #b0b0b0;
+    margin-bottom: 15px;
+}
+
+/* ==========================================
+   4. Status Indicators
+   ========================================== */
 .status {
     font-weight: bold;
     padding: 6px;
@@ -72,12 +103,9 @@ h1 {
     color: #fff;
 }
 
-.zone-watered {
-    font-size: 13px;
-    color: #b0b0b0;
-    margin-bottom: 15px;
-}
-
+/* ==========================================
+   5. Buttons & Variants
+   ========================================== */
 button {
     background-color: #0f3460;
     color: #fff;
@@ -86,14 +114,43 @@ button {
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: background 0.2s;
+    transition: background 0.2s, opacity 0.2s;
+    font-size: 14px;
 }
 
 button:hover {
     background-color: #e94560;
 }
 
-input {
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #e94560;
+}
+
+.btn-secondary:hover {
+    background: #e94560;
+    color: #fff;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    border-color: #d9534f;
+}
+
+.zone-delete-btn {
+    margin-top: 5px;
+}
+
+/* ==========================================
+   6. Forms, Inputs & Password Toggle
+   ========================================== */
+input[type="text"],
+input[type="password"] {
     width: 80%;
     padding: 8px 12px;
     border-radius: 6px;
@@ -101,9 +158,35 @@ input {
     background: #0f3460;
     color: #fff;
     margin-bottom: 10px;
+    box-sizing: border-box;
 }
 
-/* Модален прозорец */
+.password-container {
+    position: relative;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.password-container input {
+    width: 100%;
+    margin-bottom: 0;
+    padding-right: 35px; /* Leaves space for the eye icon */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #b0b0b0;
+    font-size: 16px;
+    user-select: none;
+}
+
+/* ==========================================
+   7. Modals & Popups
+   ========================================== */
 .modal {
     display: none;
     position: fixed;
@@ -132,49 +215,13 @@ input {
     cursor: pointer;
 }
 
-.btn-secondary {
-    background: transparent;
-    border: 1px solid #e94560;
-}
-
-.btn-secondary:hover {
-    background: #e94560;
+.close-btn:hover {
     color: #fff;
 }
-.error-msg {
-    color: #e94560;
-    font-size: 12px;
-    margin-top: 5px;
-    min-height: 15px;
-    text-align: center;
-    padding: 0 10px;
-    word-break: break-word;
-}
 
-.password-container {
-    position: relative;
-    width: 80%;
-    margin: 0 auto;
-}
-
-.password-container input {
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 0;
-    padding-right: 35px; /* Оставяме място за окото отвътре */
-}
-
-.password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #b0b0b0;
-    font-size: 16px;
-    user-select: none;
-}
-
+/* ==========================================
+   8. Utility Classes
+   ========================================== */
 .error-msg {
     color: #e94560;
     font-size: 12px;
@@ -183,4 +230,8 @@ input {
     text-align: center;
     padding: 0 10px;
     word-break: break-word;
+}
+
+.hidden {
+    display: none !important;
 }

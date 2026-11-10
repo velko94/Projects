@@ -1,3 +1,9 @@
+/**
+ * Frontend application logic for the Smart Irrigation system.
+ * Built with Vanilla JavaScript, modular API wrapper, centralized auth handling,
+ * and dynamic UI rendering.
+ */
+
 const API_URL = "http://localhost:8001/api/v1";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -7,13 +13,72 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (token && username && !isTokenExpired(token)) {
         showLoggedInView(username);
     } else {
-        document.getElementById("login-trigger-section").style.display = "block";
-        document.getElementById("user-info").style.display = "none";
+        setLoggedOutView();
     }
     await fetchZones();
 });
 
-// for managing the modals (open/close)
+/**
+ * Centralized API fetch wrapper.
+ * Automatically injects headers, handles authorization, and catches expired sessions.
+ */
+async function apiFetch(endpoint, options = {}) {
+    const token = localStorage.getItem("access_token");
+
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (token) {
+        if (isTokenExpired(token)) {
+            handleSessionExpiry();
+            throw new Error("Session expired. Please log in again.");
+        }
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers
+    });
+
+    if (response.status === 401) {
+        handleSessionExpiry();
+        throw new Error("Unauthorized access. Please log in.");
+    }
+
+    return response;
+}
+
+/**
+ * Handles expired sessions by clearing storage and resetting UI state.
+ */
+function handleSessionExpiry() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("username");
+    setLoggedOutView();
+    openLoginModal();
+}
+
+function setLoggedOutView() {
+    const loginTrigger = document.getElementById("login-trigger-section");
+    const userInfo = document.getElementById("user-info");
+    if (loginTrigger) loginTrigger.style.display = "block";
+    if (userInfo) userInfo.style.display = "none";
+}
+
+function showLoggedInView(username) {
+    const loginTrigger = document.getElementById("login-trigger-section");
+    const userInfo = document.getElementById("user-info");
+    const currentUsername = document.getElementById("current-username");
+
+    if (loginTrigger) loginTrigger.style.display = "none";
+    if (userInfo) userInfo.style.display = "flex";
+    if (currentUsername) currentUsername.textContent = username;
+}
+
+// Modal Management Utility
 function toggleModal(modalId, show = true) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
@@ -21,7 +86,6 @@ function toggleModal(modalId, show = true) {
     modal.style.display = show ? "block" : "none";
 
     if (show) {
-        //clear errors on open
         const errorEl = modal.querySelector(".error-msg, [id$='error']");
         if (errorEl) errorEl.textContent = "";
 
@@ -29,7 +93,6 @@ function toggleModal(modalId, show = true) {
         if (inputEl) inputEl.value = "";
     }
 }
-
 
 function openLoginModal() { toggleModal("login-modal", true); }
 function closeLoginModal() { toggleModal("login-modal", false); }
@@ -40,7 +103,6 @@ function closeRegisterModal() { toggleModal("register-modal", false); }
 function openAddZoneModal() { toggleModal("add-zone-modal", true); }
 function closeAddZoneModal() { toggleModal("add-zone-modal", false); }
 
-
 async function parseErrorResponse(response) {
     try {
         const errData = await response.json();
@@ -49,12 +111,13 @@ async function parseErrorResponse(response) {
         } else if (Array.isArray(errData.detail)) {
             return errData.detail.map(e => e.msg || JSON.stringify(e)).join(", ");
         }
-        return "Възникна грешка.";
+        return "An unexpected error occurred.";
     } catch {
-        return "Грешка при връзка със сървъра.";
+        return "Server connection error.";
     }
 }
 
+// Authentication Actions
 async function registerUser() {
     const username = document.getElementById("reg-username").value;
     const password = document.getElementById("reg-password").value;
@@ -73,8 +136,9 @@ async function registerUser() {
             document.getElementById("reg-password").value = "";
             throw new Error(errorMsg);
         }
+
         errorDiv.style.color = "lightgreen";
-        errorDiv.textContent = "Успешна регистрация! Пренасочване към вход...";
+        errorDiv.textContent = "Registration successful! Redirecting to login...";
 
         setTimeout(() => {
             closeRegisterModal();
@@ -107,7 +171,6 @@ async function loginUser() {
         }
 
         const data = await response.json();
-
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("username", usernameInput);
 
@@ -118,7 +181,6 @@ async function loginUser() {
         document.getElementById("login-password").value = "";
 
         await fetchZones();
-
     } catch (err) {
         errorDiv.textContent = err.message;
     }
@@ -127,17 +189,11 @@ async function loginUser() {
 function logoutUser() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("username");
-    document.getElementById("login-trigger-section").style.display = "block";
-    document.getElementById("user-info").style.display = "none";
+    setLoggedOutView();
     fetchZones();
 }
 
-function showLoggedInView(username) {
-    document.getElementById("login-trigger-section").style.display = "none";
-    document.getElementById("user-info").style.display = "flex";
-    document.getElementById("current-username").textContent = username;
-}
-
+// Zone Operations
 async function fetchZones() {
     const token = localStorage.getItem("access_token");
     const username = localStorage.getItem("username");
@@ -148,41 +204,25 @@ async function fetchZones() {
 
     if (!isLogged) {
         const dummyZones = [
-            { name: "Домати (примерна)", status: "off", watered: "Никога" },
-            { name: "Пипер (примерна)", status: "off", watered: "Никога" }
+            { name: "Tomatoes (Sample)", status: "off", watered: "Never" },
+            { name: "Peppers (Sample)", status: "off", watered: "Never" }
         ];
 
-        dummyZones.forEach(zone => {
-            renderZoneCard(zone, container, true); // true за примерна/неактивна карта
-        });
+        dummyZones.forEach(zone => renderZoneCard(zone, container, true));
         return;
     }
 
     try {
-        const response = await fetch(`${API_URL}/zones`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                logoutUser();
-                return;
-            }
-            throw new Error("Грешка при зареждане");
-        }
-
+        const response = await apiFetch("/zones", { method: "GET" });
         const zones = await response.json();
         const zonesArray = Array.isArray(zones) ? zones : Object.entries(zones).map(([id, z]) => ({ id, ...z }));
 
-        zonesArray.forEach(zone => {
-            renderZoneCard(zone, container, false);
-        });
+        zonesArray.forEach(zone => renderZoneCard(zone, container, false));
     } catch (error) {
-        console.error("Грешка при зареждане на данните:", error);
+        console.error("Error fetching zones:", error);
     }
 }
 
-// Помощна функция за рендване с HTML <template>
 function renderZoneCard(zone, container, isDummy = false) {
     const template = document.getElementById("zone-card-template");
     const clone = template.content.cloneNode(true);
@@ -197,21 +237,21 @@ function renderZoneCard(zone, container, isDummy = false) {
     nameEl.textContent = zone.name;
 
     if (isDummy) {
-        cardDiv.style.opacity = "0.75";
+        cardDiv.classList.add("sample-card"); // Използваме CSS клас вместо inline стил
         statusEl.className = "status off";
-        statusEl.textContent = "СПРЯНО";
-        wateredEl.textContent = `Последно: ${zone.watered}`;
-        toggleBtn.textContent = "Влез за управление";
+        statusEl.textContent = "OFF";
+        wateredEl.textContent = `Last watered: ${zone.watered}`;
+        toggleBtn.textContent = "Login to control";
         toggleBtn.setAttribute("onclick", "openLoginModal()");
-        deleteBtn.style.display = "none"; // Скриваме изтриването за примерните
+        deleteBtn.style.display = "none";
     } else {
         cardDiv.setAttribute("data-zone-id", zone.id);
         const isWorking = zone.status === "on";
         statusEl.className = isWorking ? "status on" : "status off";
-        statusEl.textContent = isWorking ? "РАБОТИ" : "СПРЯНО";
+        statusEl.textContent = isWorking ? "RUNNING" : "OFF";
 
-        const lastWatered = zone.last_watered && zone.last_watered !== "Never" ? zone.last_watered : "Никога";
-        wateredEl.textContent = `Последно: ${lastWatered}`;
+        const lastWatered = zone.last_watered && zone.last_watered !== "Never" ? zone.last_watered : "Never";
+        wateredEl.textContent = `Last watered: ${lastWatered}`;
 
         toggleBtn.setAttribute("onclick", `toggleZone(${zone.id})`);
         deleteBtn.setAttribute("onclick", `deleteZone(${zone.id})`);
@@ -221,61 +261,11 @@ function renderZoneCard(zone, container, isDummy = false) {
 }
 
 async function toggleZone(zoneId) {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-        alert("Моля, влезте в системата, за да управлявате зоните!");
-        openLoginModal();
-        return;
-    }
-
-    const headers = {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-    };
-
     try {
-        const res = await fetch(`${API_URL}/zones/${zoneId}/toggle`, {
-            method: "POST",
-            headers: headers
-        });
-
-        if (!res.ok) {
-            const errData = await res.json();
-
-            if (res.status === 401) {
-                localStorage.removeItem("access_token");
-                localStorage.removeItem("username");
-                logoutUser();
-                alert("Сесията е изтекла или невалиден токен. Моля, влезте отново!");
-                openLoginModal();
-                return;
-            }
-
-            throw new Error(errData.detail || "Грешка при превключване");
-        }
-
+        await apiFetch(`/zones/${zoneId}/toggle`, { method: "POST" });
         await fetchZones();
     } catch (err) {
         alert(err.message);
-    }
-}
-
-function togglePasswordVisibility(fieldId) {
-    const passwordInput = document.getElementById(fieldId);
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-    } else {
-        passwordInput.type = "password";
-    }
-}
-
-function isTokenExpired(token) {
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const expirationTime = payload.exp * 1000;
-        return Date.now() >= expirationTime;
-    } catch (e) {
-        return true;
     }
 }
 
@@ -286,30 +276,19 @@ async function addZone() {
     if (errorDiv) errorDiv.textContent = "";
 
     if (!name) {
-        if (errorDiv) errorDiv.textContent = "Моля, въведете име на зоната!";
-        return;
-    }
-
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-        alert("Моля, влезте в системата!");
-        openLoginModal();
+        if (errorDiv) errorDiv.textContent = "Please enter a zone name!";
         return;
     }
 
     try {
-        const response = await fetch(`${API_URL}/zones`, {
+        const response = await apiFetch("/zones", {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify({ name: name })
         });
 
         if (!response.ok) {
             const errData = await response.json();
-            throw new Error(errData.detail || "Грешка при създаване на зоната");
+            throw new Error(errData.detail || "Failed to create zone.");
         }
 
         zoneNameInput.value = '';
@@ -321,29 +300,36 @@ async function addZone() {
 }
 
 async function deleteZone(zoneId) {
-    if (!confirm("Сигурни ли сте, че искате да изтриете тази зона?")) return;
-
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-        alert("Моля, влезте в системата!");
-        openLoginModal();
-        return;
-    }
+    if (!confirm("Are you sure you want to delete this zone?")) return;
 
     try {
-        const response = await fetch(`${API_URL}/zones/${zoneId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+        const response = await apiFetch(`/zones/${zoneId}`, {
+            method: 'DELETE'
         });
 
         if (!response.ok) {
-            throw new Error("Грешка при изтриване на зоната");
+            throw new Error("Failed to delete zone.");
         }
 
         await fetchZones();
     } catch (err) {
         alert(err.message);
+    }
+}
+
+// Helpers
+function togglePasswordVisibility(fieldId) {
+    const passwordInput = document.getElementById(fieldId);
+    if (!passwordInput) return;
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+}
+
+function isTokenExpired(token) {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expirationTime = payload.exp * 1000;
+        return Date.now() >= expirationTime;
+    } catch (e) {
+        return true;
     }
 }
