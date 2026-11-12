@@ -45,6 +45,7 @@ class ZoneModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    owner = Column(String, nullable=False)  # <--- Поле за потребителска изолация
     status = Column(String, default="off")
     last_watered = Column(String, default="Never")
 
@@ -53,7 +54,7 @@ class PostgresZoneRepository(BaseZoneRepository):
     """Repository handling irrigation zone management and telemetry state in PostgreSQL."""
 
     def get_all_zones(self) -> dict:
-        """Retrieves all irrigation zones formatted as a dictionary mapped by their IDs."""
+        """Retrieves all zones (fallback)."""
         db = SessionLocal()
         try:
             zones = db.query(ZoneModel).all()
@@ -64,14 +65,27 @@ class PostgresZoneRepository(BaseZoneRepository):
         finally:
             db.close()
 
-    def toggle_zone(self, zone_id: int, event_time: str) -> dict:
-        """
-        Toggles a zone's operational state ('on'/'off'). 
-        If turning 'on', records the current timestamp.
-        """
+    def get_zones_by_user(self, owner: str) -> dict:
+        """Retrieves irrigation zones strictly for a specific user."""
         db = SessionLocal()
         try:
-            zone = db.query(ZoneModel).filter(ZoneModel.id == zone_id).first()
+            zones = db.query(ZoneModel).filter(ZoneModel.owner == owner).all()
+            return {
+                z.id: {"name": z.name, "status": z.status, "last_watered": z.last_watered}
+                for z in zones
+            }
+        finally:
+            db.close()
+
+    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict:
+        """Toggles a zone's operational state ensuring user ownership."""
+        db = SessionLocal()
+        try:
+            query = db.query(ZoneModel).filter(ZoneModel.id == zone_id)
+            if owner:
+                query = query.filter(ZoneModel.owner == owner)
+            zone = query.first()
+
             if not zone:
                 return None
 
@@ -87,15 +101,15 @@ class PostgresZoneRepository(BaseZoneRepository):
         finally:
             db.close()
 
-    def add_zone(self, name: str) -> dict:
-        """Adds a new irrigation zone, checking for duplicate names first."""
+    def add_zone(self, name: str, owner: str = "default_user") -> dict:
+        """Adds a new irrigation zone linked to the active user."""
         db = SessionLocal()
         try:
-            existing_zone = db.query(ZoneModel).filter(ZoneModel.name == name).first()
+            existing_zone = db.query(ZoneModel).filter(ZoneModel.name == name, ZoneModel.owner == owner).first()
             if existing_zone:
                 raise HTTPException(status_code=400, detail="A zone with this name already exists!")
 
-            new_zone = ZoneModel(name=name, status="off", last_watered="Never")
+            new_zone = ZoneModel(name=name, owner=owner, status="off", last_watered="Never")
             db.add(new_zone)
             db.commit()
             db.refresh(new_zone)
@@ -108,11 +122,15 @@ class PostgresZoneRepository(BaseZoneRepository):
         finally:
             db.close()
 
-    def delete_zone(self, zone_id: int) -> bool:
-        """Deletes an irrigation zone by its ID. Returns True if successful, False otherwise."""
+    def delete_zone(self, zone_id: int, owner: str = None) -> bool:
+        """Deletes an irrigation zone by its ID and owner."""
         db = SessionLocal()
         try:
-            zone = db.query(ZoneModel).filter(ZoneModel.id == zone_id).first()
+            query = db.query(ZoneModel).filter(ZoneModel.id == zone_id)
+            if owner:
+                query = query.filter(ZoneModel.owner == owner)
+            zone = query.first()
+
             if not zone:
                 return False
             db.delete(zone)

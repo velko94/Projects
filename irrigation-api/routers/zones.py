@@ -39,18 +39,17 @@ class ZoneCreate(BaseModel):
 
 
 @router.get("/zones")
-def check_zones():
-    """Retrieves a dictionary from DB of all configured irrigation zones and their statuses."""
+def check_zones(current_user: str = Depends(verify_jwt_token)):
     repo = get_zone_repository()
-    return repo.get_all_zones()
+    # Провери дали репозиторието ти има този метод или подава собственика правилно:
+    return repo.get_zones_by_user(current_user)
 
 
-@router.post("/zones", dependencies=[Depends(verify_jwt_token)])
-def create_zone(zone_data: ZoneCreate):
-    """Creates a new irrigation zone. Requires an active user JWT token."""
+@router.post("/zones")
+def create_zone(zone_data: ZoneCreate, current_user: str = Depends(verify_jwt_token)):
+    """Creates a new irrigation zone linked to the active user."""
     repo = get_zone_repository()
-    return repo.add_zone(zone_data.name)
-
+    return repo.add_zone(zone_data.name, owner=current_user)
 
 @router.delete("/zones/{zone_id}", dependencies=[Depends(verify_jwt_token)])
 def delete_zone(zone_id: int):

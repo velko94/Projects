@@ -25,21 +25,26 @@ class BaseZoneRepository(ABC):
     """Abstract base class defining the required contract for irrigation zone management."""
 
     @abstractmethod
+    def get_zones_by_user(self, owner: str) -> dict:
+        """Retrieves irrigation zones for a specific user."""
+        pass
+
+    @abstractmethod
     def get_all_zones(self) -> dict:
         """Retrieves all irrigation zones."""
         pass
 
     @abstractmethod
-    def toggle_zone(self, zone_id: int, event_time: str) -> dict:
-        """Toggles the status of a specific zone and records the event timestamp."""
+    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict:
+        """Toggles the status of a specific zone."""
         pass
 
     @abstractmethod
-    def add_zone(self, name: str) -> dict:
+    def add_zone(self, name: str, owner: str = "default_user") -> dict:
         """Creates a new irrigation zone."""
         pass
 
     @abstractmethod
-    def delete_zone(self, zone_id: int) -> bool:
-        """Deletes an irrigation zone by its ID. Returns True if successful."""
+    def delete_zone(self, zone_id: int, owner: str = None) -> bool:
+        """Deletes an irrigation zone by its ID."""
         pass

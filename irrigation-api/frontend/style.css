@@ -26,6 +26,14 @@ h1 {
     display: flex;
     align-items: center;
     gap: 10px;
+    z-index: 100;
+}
+
+/* Добави това правило тук: */
+#login-trigger-section, .user-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .top-bar p {
@@ -33,14 +41,10 @@ h1 {
     display: inline-block;
 }
 
-.user-info-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .welcome-text {
     margin: 0;
+    color: #fff;
+    font-weight: bold;
 }
 
 /* ==========================================
@@ -64,7 +68,6 @@ h1 {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Sample/Dummy card styling for unauthenticated users */
 .card.sample-card {
     opacity: 0.75;
 }
@@ -137,9 +140,17 @@ button:hover {
     border-color: #4CAF50;
 }
 
+.btn-success:hover {
+    background-color: #45a049;
+}
+
 .btn-danger {
     background-color: #d9534f;
     border-color: #d9534f;
+}
+
+.btn-danger:hover {
+    background-color: #c9302c;
 }
 
 .zone-delete-btn {
@@ -170,7 +181,7 @@ input[type="password"] {
 .password-container input {
     width: 100%;
     margin-bottom: 0;
-    padding-right: 35px; /* Leaves space for the eye icon */
+    padding-right: 35px;
 }
 
 .password-toggle {

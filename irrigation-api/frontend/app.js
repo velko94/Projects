@@ -120,7 +120,8 @@ async function parseErrorResponse(response) {
 // Authentication Actions
 async function registerUser() {
     const username = document.getElementById("reg-username").value;
-    const password = document.getElementById("reg-password").value;
+    const passwordInput = document.getElementById("reg-password");
+    const password = passwordInput.value;
     const errorDiv = document.getElementById("reg-error");
     errorDiv.textContent = "";
 
@@ -133,7 +134,7 @@ async function registerUser() {
 
         if (!response.ok) {
             const errorMsg = await parseErrorResponse(response);
-            document.getElementById("reg-password").value = "";
+            passwordInput.value = ""; // clear the password field
             throw new Error(errorMsg);
         }
 
@@ -202,14 +203,23 @@ async function fetchZones() {
     const container = document.getElementById("zones-container");
     container.innerHTML = "";
 
+    const loginTrigger = document.getElementById("login-trigger-section");
+    const userInfo = document.getElementById("user-info");
+
     if (!isLogged) {
+        if (loginTrigger) loginTrigger.style.display = "block";
+        if (userInfo) userInfo.style.display = "none";
+
         const dummyZones = [
-            { name: "Tomatoes (Sample)", status: "off", watered: "Never" },
-            { name: "Peppers (Sample)", status: "off", watered: "Never" }
+            { name: "Домати и пипер", status: "off", watered: "2026-11-10-10:32" },
+            { name: "Краставици и тиквички", status: "off", watered: "2026-11-10-10:33" },
+            { name: "Ягоди", status: "off", watered: "2026-11-12-10:32" }
         ];
 
         dummyZones.forEach(zone => renderZoneCard(zone, container, true));
         return;
+    } else {
+        showLoggedInView(username);
     }
 
     try {
@@ -237,7 +247,7 @@ function renderZoneCard(zone, container, isDummy = false) {
     nameEl.textContent = zone.name;
 
     if (isDummy) {
-        cardDiv.classList.add("sample-card"); // Използваме CSS клас вместо inline стил
+        cardDiv.classList.add("sample-card");
         statusEl.className = "status off";
         statusEl.textContent = "OFF";
         wateredEl.textContent = `Last watered: ${zone.watered}`;

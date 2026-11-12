@@ -13,7 +13,7 @@ def register_user(username_input: str, raw_password: str):
     """Registers a new user after verifying that the username is not already taken."""
     existing_user = get_user_repository().get_user_by_username(username_input)
     if existing_user:
-        raise HTTPException(status_code=400, detail="This username is already taken!")
+        raise HTTPException(status_code=400, detail="Wrong username or password ")
 
     hashed_string = get_password_encode(raw_password)
     get_user_repository().create_user(username_input, hashed_string)
