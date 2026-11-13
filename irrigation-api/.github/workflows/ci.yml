@@ -3,12 +3,19 @@ name: CI Pipeline
 on:
   push:
     branches: [ "master", "main", "test_env" ]
+    paths:
+      - 'irrigation-api/**'
   pull_request:
     branches: [ "master", "main" ]
+    paths:
+      - 'irrigation-api/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./irrigation-api
 
     steps:
       - name: Checkout code
