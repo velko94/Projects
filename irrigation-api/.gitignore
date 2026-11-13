@@ -10,7 +10,8 @@ aws_deploy/
 *.zip
 requirements_lambda.tmp
 # PyCharm системна папка
-.idea/
+../.idea/
+../.idea/*
 
 # AWS и Terraform временни файлове (за по-нататък)
 .terraform/
