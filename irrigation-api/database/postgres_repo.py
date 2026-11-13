@@ -105,10 +105,14 @@ class PostgresZoneRepository(BaseZoneRepository):
         """Adds a new irrigation zone linked to the active user."""
         db = SessionLocal()
         try:
+            user_zones_count = db.query(ZoneModel).filter(ZoneModel.owner == owner).count()
+            if user_zones_count >= 20:
+                raise HTTPException(status_code=400, detail="Maximum limit of 20 zones reached for this account.")
             existing_zone = db.query(ZoneModel).filter(ZoneModel.name == name, ZoneModel.owner == owner).first()
             if existing_zone:
                 raise HTTPException(status_code=400, detail="A zone with this name already exists!")
 
+            # 3. Създаване на новата зона
             new_zone = ZoneModel(name=name, owner=owner, status="off", last_watered="Never")
             db.add(new_zone)
             db.commit()
