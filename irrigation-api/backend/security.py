@@ -41,7 +41,7 @@ def check_pwd(raw_password: str, hex_from_db: str) -> bool:
 # JWT Configuration settings
 SECRET_KEY = os.getenv("JWT_SECRET", "super_secret_irrigation_jwt_key_change_in_production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1  # Updated to a standard practical session window
+ACCESS_TOKEN_EXPIRE_MINUTES = 5  # Updated to a standard practical session window
 
 security_bearer = HTTPBearer()
 
