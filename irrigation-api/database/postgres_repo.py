@@ -5,7 +5,7 @@ Handles database initialization, user persistence, and irrigation zone CRUD oper
 
 from fastapi import HTTPException
 from database.base import BaseUserRepository, BaseZoneRepository
-from sqlalchemy import Column, Integer, String, text
+from sqlalchemy import Column, Integer, String, text,Float
 from database.connection import Base, SessionLocal, User, engine
 
 
@@ -45,10 +45,11 @@ class ZoneModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    owner = Column(String, nullable=False)  # <--- Поле за потребителска изолация
+    owner = Column(String, nullable=False)
     status = Column(String, default="off")
     last_watered = Column(String, default="Never")
-
+    last_watered_duration = Column(String,default="00:00")
+    started_at = Column(Float, nullable=True)
 
 class PostgresZoneRepository(BaseZoneRepository):
     """Repository handling irrigation zone management and telemetry state in PostgreSQL."""
@@ -71,14 +72,20 @@ class PostgresZoneRepository(BaseZoneRepository):
         try:
             zones = db.query(ZoneModel).filter(ZoneModel.owner == owner).all()
             return {
-                z.id: {"name": z.name, "status": z.status, "last_watered": z.last_watered}
+                z.id: {
+                    "name": z.name,
+                    "status": z.status,
+                    "last_watered": z.last_watered,
+                    "last_watered_duration": z.last_watered_duration
+                }
                 for z in zones
             }
         finally:
             db.close()
 
     def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict:
-        """Toggles a zone's operational state ensuring user ownership."""
+        """Toggles a zone and automatically calculates running duration based on timestamps."""
+        import time
         db = SessionLocal()
         try:
             query = db.query(ZoneModel).filter(ZoneModel.id == zone_id)
@@ -89,17 +96,52 @@ class PostgresZoneRepository(BaseZoneRepository):
             if not zone:
                 return None
 
+            current_time = time.time()
+
             if zone.status == "off":
                 zone.status = "on"
-                zone.last_watered = event_time
+                zone.started_at = current_time  # save when started
             else:
                 zone.status = "off"
+                zone.last_watered = event_time
+
+                # count the time it worked
+                if zone.started_at:
+                    elapsed_seconds = int(current_time - zone.started_at)
+                    hours = elapsed_seconds // 3600
+                    minutes = (elapsed_seconds % 3600) // 60
+                    seconds = elapsed_seconds % 60
+
+                    if zone.started_at:
+                        elapsed_seconds = int(current_time - zone.started_at)
+                        days = elapsed_seconds // 86400
+                        hours = (elapsed_seconds % 86400) // 3600
+                        minutes = (elapsed_seconds % 3600) // 60
+                        seconds = elapsed_seconds % 60
+                        if days > 0:
+                            zone.last_watered_duration = f"{days}d {hours}h {minutes}m"
+                        elif hours > 0:
+                            zone.last_watered_duration = f"{hours}h {minutes}m"
+                        elif minutes > 0:
+                            zone.last_watered_duration = f"{minutes}m {seconds}s"
+                        else:
+                            zone.last_watered_duration = f"{seconds}s"
+                else:
+                    zone.last_watered_duration = "N/A"
+                zone.started_at = None  # clears the started at
 
             db.commit()
             db.refresh(zone)
-            return {"name": zone.name, "status": zone.status, "last_watered": zone.last_watered}
+            return {
+                "name": zone.name,
+                "status": zone.status,
+                "last_watered": zone.last_watered,
+                "last_watered_duration": zone.last_watered_duration
+            }
         finally:
             db.close()
+
+
 
     def add_zone(self, name: str, owner: str = "default_user") -> dict:
         """Adds a new irrigation zone linked to the active user."""

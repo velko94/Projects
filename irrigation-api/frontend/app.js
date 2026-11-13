@@ -261,7 +261,9 @@ function renderZoneCard(zone, container, isDummy = false) {
         statusEl.textContent = isWorking ? "RUNNING" : "OFF";
 
         const lastWatered = zone.last_watered && zone.last_watered !== "Never" ? zone.last_watered : "Never";
-        wateredEl.textContent = `Last watered: ${lastWatered}`;
+        const duration = zone.last_watered_duration && zone.last_watered_duration !== "N/A" ? zone.last_watered_duration : "00:00";
+
+        wateredEl.innerHTML = `Last watered: ${lastWatered}<br>Last watering duration: ${duration}`;
 
         toggleBtn.setAttribute("onclick", `toggleZone(${zone.id})`);
         deleteBtn.setAttribute("onclick", `deleteZone(${zone.id})`);
