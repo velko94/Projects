@@ -41,7 +41,6 @@ class ZoneCreate(BaseModel):
 @router.get("/zones")
 def check_zones(current_user: str = Depends(verify_jwt_token)):
     repo = get_zone_repository()
-    # Провери дали репозиторието ти има този метод или подава собственика правилно:
     return repo.get_zones_by_user(current_user)
 
 
