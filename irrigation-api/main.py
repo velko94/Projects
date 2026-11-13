@@ -46,9 +46,10 @@ app.add_middleware(
 )
 
 # Initialize Rate Limiter based on client IP address
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_remote_address, default_limits=["10/minute"])
 app.state.limiter = limiter # type: ignore
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 """
 Custom exception handler for validation errors.
@@ -78,3 +79,6 @@ def handler(event, context):
         """
     asgi_handler = Mangum(app)
     return asgi_handler(event, context)
+
+
+
