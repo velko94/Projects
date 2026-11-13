@@ -30,4 +30,4 @@ jobs:
           IRRIGATION_API_KEY: "dummy_test_api_key_for_ci"
           JWT_SECRET: "dummy_test_jwt_secret_for_ci"
         run: |
-          pytest -v
+          PYTHONPATH=. pytest -v
