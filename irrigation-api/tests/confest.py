@@ -13,7 +13,7 @@ class InMemoryUserRepository(BaseUserRepository):
 
     def get_user_by_username(self, username: str):
         if username in self.storage:
-            return (username, self.storage[username])
+            return username, self.storage[username]
         return None
 
     def create_user(self, username: str, hashed_pwd: str):

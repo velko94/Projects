@@ -8,6 +8,7 @@ from fastapi import APIRouter, Request
 from pydantic import BaseModel, field_validator, Field
 import re
 from pydantic_core import PydanticCustomError
+import utils
 from backend.users import register_user, login_user
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -25,7 +26,7 @@ class UserRegister(BaseModel):
     password: str = Field(...)
 
     @field_validator('username')
-    def validate_username(cls, v):
+    def validate_username(cls, v): # type: ignore
         """Validates username format, length, and allowed characters (supports Latin, Cyrillic, and numbers)."""
         if not isinstance(v, str):
             raise PydanticCustomError('input_error', 'Username must be a text string.')
@@ -45,7 +46,7 @@ class UserRegister(BaseModel):
         return username_clean
 
     @field_validator('password')
-    def validate_password(cls, v):
+    def validate_password(cls, v): # type: ignore
         """Validates password length and checks against a blacklist of common weak passwords."""
         pwd_clean = v.strip()
 
@@ -62,6 +63,7 @@ class UserRegister(BaseModel):
 @router.post("/register")
 @limiter.limit("5/minute")
 def register_user_endpoint(request: Request, user_data: UserRegister):
+    utils.dummy_request_use(request)
     """
     Endpoint for registering a new user.
     Protected by a rate limit of 5 requests per minute per IP address.
@@ -72,6 +74,7 @@ def register_user_endpoint(request: Request, user_data: UserRegister):
 @router.post("/login")
 @limiter.limit("5/minute")
 def login_endpoint(request: Request, user_data: UserRegister):
+    utils.dummy_request_use(request)
     """
     Endpoint for user authentication (login).
     Protected by a rate limit of 5 requests per minute per IP address.

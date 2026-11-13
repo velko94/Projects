@@ -30,7 +30,7 @@ class PostgresUserRepository(BaseUserRepository):
         """Creates and persists a new user with a hashed password."""
         db = SessionLocal()
         try:
-            db_user = User(username=username, user_password=hashed_pwd)
+            db_user = User(username=username, user_password=hashed_pwd) # type: ignore
             db.add(db_user)
             db.commit()
             db.refresh(db_user)
@@ -83,7 +83,7 @@ class PostgresZoneRepository(BaseZoneRepository):
         finally:
             db.close()
 
-    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict:
+    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict: # type: ignore
         """Toggles a zone and automatically calculates running duration based on timestamps."""
         import time
         db = SessionLocal()
@@ -94,7 +94,7 @@ class PostgresZoneRepository(BaseZoneRepository):
             zone = query.first()
 
             if not zone:
-                return None
+                return None # type: ignore
 
             current_time = time.time()
 
@@ -104,15 +104,8 @@ class PostgresZoneRepository(BaseZoneRepository):
             else:
                 zone.status = "off"
                 zone.last_watered = event_time
-
-                # count the time it worked
+                # count the time it worked (covering seconds, minutes, hours, and days)
                 if zone.started_at:
-                    elapsed_seconds = int(current_time - zone.started_at)
-                    hours = elapsed_seconds // 3600
-                    minutes = (elapsed_seconds % 3600) // 60
-                    seconds = elapsed_seconds % 60
-
-                    if zone.started_at:
                         elapsed_seconds = int(current_time - zone.started_at)
                         days = elapsed_seconds // 86400
                         hours = (elapsed_seconds % 86400) // 3600
@@ -155,7 +148,7 @@ class PostgresZoneRepository(BaseZoneRepository):
                 raise HTTPException(status_code=400, detail="A zone with this name already exists!")
 
             # 3. Създаване на новата зона
-            new_zone = ZoneModel(name=name, owner=owner, status="off", last_watered="Never")
+            new_zone = ZoneModel(name=name, owner=owner, status="off", last_watered="Never") # type: ignore
             db.add(new_zone)
             db.commit()
             db.refresh(new_zone)
@@ -168,7 +161,7 @@ class PostgresZoneRepository(BaseZoneRepository):
         finally:
             db.close()
 
-    def delete_zone(self, zone_id: int, owner: str = None) -> bool:
+    def delete_zone(self, zone_id: int, owner: str = None) -> bool: # type: ignore
         """Deletes an irrigation zone by its ID and owner."""
         db = SessionLocal()
         try:

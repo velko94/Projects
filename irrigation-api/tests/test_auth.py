@@ -28,7 +28,7 @@ def test_duplicate_user_registration():
         register_user(username, password)
 
     assert exc_info.value.status_code == 400
-    assert "already taken" in exc_info.value.detail
+    assert "already taken" in exc_info.value.detail # type: ignore
 
 
 def test_different_users_same_password():
@@ -93,7 +93,7 @@ def test_jwt_token_expired_handling():
         verify_jwt_token(credentials)
 
     assert exc_info.value.status_code == 401
-    assert "expired" in exc_info.value.detail.lower()
+    assert "expired" in exc_info.value.detail.lower() # type: ignore
 
 
 def test_jwt_token_invalid_signature():
@@ -108,4 +108,4 @@ def test_jwt_token_invalid_signature():
         verify_jwt_token(credentials)
 
     assert exc_info.value.status_code == 401
-    assert "validate" in exc_info.value.detail.lower()
+    assert "validate" in exc_info.value.detail.lower() # type: ignore

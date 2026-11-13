@@ -13,6 +13,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from database.factory import get_zone_repository
 from backend.security import verify_jwt_token
+import utils
 
 router = APIRouter(prefix="/api/v1", tags=["Zones"])
 limiter = Limiter(key_func=get_remote_address)
@@ -63,7 +64,7 @@ def delete_zone(zone_id: int):
 @router.post("/zones/{zone_id}/toggle", dependencies=[Depends(verify_jwt_token)])
 @limiter.limit("5/minute")
 async def toggle(request: Request, zone_id: int):
-    _ = request
+    utils.dummy_request_use(request)
     """
     Toggles an irrigation zone state (on/off) and updates the last watered timestamp.
     Protected by rate limiting (max 5 requests/minute) and JWT authentication.

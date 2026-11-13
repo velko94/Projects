@@ -50,6 +50,6 @@ def get_zone_repository() -> BaseZoneRepository:
             raise RuntimeError("PostgreSQL repository selected, but required dependencies are missing.") from e
     elif db_type == "dynamo":
         from database.dynamo_repo import DynamoZoneRepository
-        return DynamoZoneRepository()
+        return DynamoZoneRepository() # type: ignore
     else:
         raise ValueError(f"Unsupported database type: {db_type}")

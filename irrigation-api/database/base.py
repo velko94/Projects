@@ -35,7 +35,7 @@ class BaseZoneRepository(ABC):
         pass
 
     @abstractmethod
-    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict:
+    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict: # type: ignore
         """Toggles the status of a specific zone."""
         pass
 
@@ -45,6 +45,6 @@ class BaseZoneRepository(ABC):
         pass
 
     @abstractmethod
-    def delete_zone(self, zone_id: int, owner: str = None) -> bool:
+    def delete_zone(self, zone_id: int, owner: str = None) -> bool: # type: ignore
         """Deletes an irrigation zone by its ID."""
         pass

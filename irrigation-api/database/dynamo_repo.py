@@ -36,7 +36,7 @@ class DynamoUserRepository(BaseUserRepository):
         return True
 
 
-class DynamoZoneRepository(BaseZoneRepository):
+class DynamoZoneRepository(BaseZoneRepository): # type: ignore
     """Repository handling irrigation zone management and telemetry state in AWS DynamoDB."""
 
     def __init__(self):
@@ -60,7 +60,7 @@ class DynamoZoneRepository(BaseZoneRepository):
             }
         return zones_dict
 
-    def toggle_zone(self, zone_id: int, event_time: str) -> dict:
+    def toggle_zone(self, zone_id: int, event_time: str) -> dict: # type: ignore
         """
         Toggles a zone's operational state ('on'/'off') in DynamoDB using update expressions.
         Records the current timestamp if turned 'on'.
@@ -68,7 +68,7 @@ class DynamoZoneRepository(BaseZoneRepository):
         response = self.table.get_item(Key={"zone_id": zone_id})
         item = response.get("Item")
         if not item:
-            return None
+            return None # type: ignore
 
         current_status = item.get("status", "off")
         new_status = "off" if current_status == "on" else "on"

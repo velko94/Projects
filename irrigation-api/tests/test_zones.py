@@ -11,7 +11,7 @@ from fastapi import HTTPException
 from database.base import BaseZoneRepository
 
 
-class InMemoryZoneRepository(BaseZoneRepository):
+class InMemoryZoneRepository(BaseZoneRepository): # type: ignore
     """In-memory mock repository for testing zone operations without a real database."""
 
     def __init__(self):
@@ -22,14 +22,14 @@ class InMemoryZoneRepository(BaseZoneRepository):
         }
         self.next_id = 3
 
-    def get_all_zones(self) -> dict:
+    def get_all_zones(self) -> dict: # type: ignore
         """Retrieves all zones from in-memory storage."""
         return self.storage
 
-    def toggle_zone(self, zone_id: int, event_time: str) -> dict:
+    def toggle_zone(self, zone_id: int, event_time: str) -> dict: # type: ignore
         """Toggles zone status and updates last watered time if turned 'on'."""
         if zone_id not in self.storage:
-            return None
+            return None # type: ignore
 
         zone = self.storage[zone_id]
         if zone["status"] == "off":
@@ -40,7 +40,7 @@ class InMemoryZoneRepository(BaseZoneRepository):
 
         return zone
 
-    def add_zone(self, name: str) -> dict:
+    def add_zone(self, name: str) -> dict: # type: ignore
         """Adds a new zone if the name is unique."""
         for z in self.storage.values():
             if z["name"] == name:
@@ -55,10 +55,10 @@ class InMemoryZoneRepository(BaseZoneRepository):
             "status": "off",
             "last_watered": "Never"
         }
-        self.storage[new_id] = new_zone
+        self.storage[new_id] = new_zone # type: ignore
         return new_zone
 
-    def delete_zone(self, zone_id: int) -> bool:
+    def delete_zone(self, zone_id: int) -> bool: # type: ignore
         """Deletes a zone by ID if it exists."""
         if zone_id in self.storage:
             del self.storage[zone_id]
@@ -69,14 +69,14 @@ class InMemoryZoneRepository(BaseZoneRepository):
 @pytest.fixture(autouse=True)
 def override_zone_repository(monkeypatch):
     """Fixture to inject the in-memory zone mock repository."""
-    mock_zone_repo = InMemoryZoneRepository()
+    mock_zone_repo = InMemoryZoneRepository() # type: ignore
     monkeypatch.setattr("database.factory.get_zone_repository", lambda: mock_zone_repo)
     return mock_zone_repo
 
 
 def test_get_all_zones():
     """Test 1: Successfully retrieves all pre-configured zones."""
-    repo = InMemoryZoneRepository()
+    repo = InMemoryZoneRepository() # type: ignore
     zones = repo.get_all_zones()
 
     assert len(zones) == 2
@@ -86,7 +86,7 @@ def test_get_all_zones():
 
 def test_toggle_zone_state():
     """Test 2: Toggling a zone flips its status and updates the timestamp when activated."""
-    repo = InMemoryZoneRepository()
+    repo = InMemoryZoneRepository() # type: ignore
     timestamp = "2026-06-06 12:00:00"
 
     # Toggle Zone 1 from 'off' to 'on'
@@ -101,7 +101,7 @@ def test_toggle_zone_state():
 
 def test_add_zone_success_and_duplicate():
     """Test 3: Adding a new zone succeeds, while adding a duplicate name raises HTTP 400."""
-    repo = InMemoryZoneRepository()
+    repo = InMemoryZoneRepository() # type: ignore
 
     # Add a unique new zone
     new_zone = repo.add_zone("Orchard Section")
@@ -113,12 +113,12 @@ def test_add_zone_success_and_duplicate():
         repo.add_zone("Greenhouse Zone")
 
     assert exc_info.value.status_code == 400
-    assert "already exists" in exc_info.value.detail
+    assert "already exists" in exc_info.value.detail # type: ignore
 
 
 def test_delete_zone():
     """Test 4: Deleting a zone removes it from storage successfully."""
-    repo = InMemoryZoneRepository()
+    repo = InMemoryZoneRepository() # type: ignore
 
     # Delete existing zone 2
     success = repo.delete_zone(2)

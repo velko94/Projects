@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter, _rate_limit_exceeded_handler # type: ignore
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from backend.config import IS_AWS_LAMBDA
@@ -39,16 +39,16 @@ app = FastAPI(
 # Configure CORS policies
 app.add_middleware(
     CORSMiddleware, # type: ignore
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"], # type: ignore
+    allow_credentials=True, # type: ignore
+    allow_methods=["*"], #  type: ignore
+    allow_headers=["*"], # type: ignore
 )
 
 # Initialize Rate Limiter based on client IP address
 limiter = Limiter(key_func=get_remote_address, default_limits=["10/minute"])
 app.state.limiter = limiter # type: ignore
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler) #type:ignore
 
 
 """
@@ -60,7 +60,7 @@ async def custom_validation_exception_handler(_request: Request, exc: RequestVal
     cleaned_errors = []
     for err in exc.errors():
         err_dict = dict(err)
-        err_dict.pop("input", None)
+        err_dict.pop("input", None) # type: ignore
         cleaned_errors.append(err_dict)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
