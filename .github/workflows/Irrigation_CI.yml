@@ -7,10 +7,24 @@ on:
     branches: [ "master", "main", "ACC", "dev" ]
 
 jobs:
-  # 1. Runs on PRs to catch errors before merging (Required status check)
   test:
     name: irrigation_acc
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: irrigation
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -34,37 +48,6 @@ jobs:
           PYTHONPATH: .
           IRRIGATION_API_KEY: "dummy_test_api_key_for_ci"
           JWT_SECRET: "dummy_test_jwt_secret_for_ci"
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/irrigation"
         run: |
           pytest -v
-
-  # 2. Executes on merge to ACC
-  deploy-acc:
-    name: Deploy & Verify ACC
-    needs: test
-    if: github.ref == 'refs/heads/ACC' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    environment: ACC
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: ACC Verification
-        run: |
-          echo "Successfully verified and deployed to ACC environment."
-
-  # 3. Executes on merge to master (PRD)
-  deploy-prd:
-    name: irrigation_prd
-    needs: test
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    environment: PRD
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: PRD Deployment
-        run: |
-          echo "Approved and deploying to PRD environment."
