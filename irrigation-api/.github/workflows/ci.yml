@@ -1,0 +1,69 @@
+name: ci.yml
+
+on:
+  push:
+    branches: [ "master", "main", "test_env" ]
+  pull_request:
+    branches: [ "master", "main", "test_env" ]
+
+jobs:
+  # 1. Реже те още на PR към test_env и master (задължителният status check)
+  test:
+    name: Pytest Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run test suite with pytest
+        env:
+          IRRIGATION_API_KEY: "dummy_test_api_key_for_ci"
+          JWT_SECRET: "dummy_test_jwt_secret_for_ci"
+        run: |
+          pytest -v
+
+  # 2. Изпълнява се при мърдж в test_env -> отчита деплой в ACC и отключва PR към master
+  deploy-acc:
+    name: Deploy & Verify ACC
+    needs: test
+    if: github.ref == 'refs/heads/test_env' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: ACC
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: ACC Verification
+        run: |
+          echo "Successfully verified and deployed to ACC environment."
+          # Тук по-късно можеш да добавиш реалния deploy скрипт за тестовия сървър
+
+  # 3. Изпълнява се при мърдж в master -> спира за твоето одобрение (Required reviewer) преди PRD
+  deploy-prd:
+    name: Deploy to Production (PRD)
+    needs: test
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: PRD
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: PRD Deployment
+        run: |
+          echo "Approved and deploying to PRD environment."
+          # Тук по-късно можеш да добавиш реалния deploy скрипт за продукция
