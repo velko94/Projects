@@ -31,6 +31,7 @@ jobs:
       - name: Run test suite with pytest
         working-directory: ./irrigation-api
         env:
+          PYTHONPATH: .
           IRRIGATION_API_KEY: "dummy_test_api_key_for_ci"
           JWT_SECRET: "dummy_test_jwt_secret_for_ci"
         run: |
