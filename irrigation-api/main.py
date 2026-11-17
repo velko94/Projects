@@ -14,7 +14,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from backend.config import IS_AWS_LAMBDA
 from routers import auth, zones
-from database.postgres_repo import init_db
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -24,9 +24,9 @@ async def lifespan(_: FastAPI):
         """
     try:
         init_db()
-        print("Базата данни е проверена и основните таблици са създадени успешно.")
+        print("Database is initiated successfully and working ")
     except Exception as e:
-        print(f"Грешка при инициализация на базата данни: {e}")
+        print(f"Error initializing the DB {e}")
     yield
 
 # Initialize FastAPI application with dynamic titles and root paths based on environment
