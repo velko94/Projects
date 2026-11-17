@@ -17,21 +17,31 @@ class InMemoryZoneRepository(BaseZoneRepository): # type: ignore
     def __init__(self):
         # Pre-populate with a couple of mock zones for testing
         self.storage = {
-            1: {"name": "Greenhouse Zone", "status": "off", "last_watered": "Never"},
-            2: {"name": "Lawn Sprinklers", "status": "on", "last_watered": "2026-06-01 10:00:00"}
+            1: {"name": "Greenhouse Zone", "owner": "default_user", "status": "off", "last_watered": "Never"},
+            2: {"name": "Lawn Sprinklers", "owner": "default_user", "status": "on", "last_watered": "2026-06-01 10:00:00"}
         }
         self.next_id = 3
+
+    def get_zones_by_user(self, owner: str) -> dict:
+        """Retrieves irrigation zones for a specific user."""
+        return {
+            z_id: data for z_id, data in self.storage.items()
+            if data.get("owner") == owner
+        }
 
     def get_all_zones(self) -> dict: # type: ignore
         """Retrieves all zones from in-memory storage."""
         return self.storage
 
-    def toggle_zone(self, zone_id: int, event_time: str) -> dict: # type: ignore
+    def toggle_zone(self, zone_id: int, event_time: str, owner: str = None) -> dict: # type: ignore
         """Toggles zone status and updates last watered time if turned 'on'."""
         if zone_id not in self.storage:
             return None # type: ignore
 
         zone = self.storage[zone_id]
+        if owner and zone.get("owner") != owner:
+            return None # type: ignore
+
         if zone["status"] == "off":
             zone["status"] = "on"
             zone["last_watered"] = event_time
@@ -40,10 +50,10 @@ class InMemoryZoneRepository(BaseZoneRepository): # type: ignore
 
         return zone
 
-    def add_zone(self, name: str) -> dict: # type: ignore
+    def add_zone(self, name: str, owner: str = "default_user") -> dict: # type: ignore
         """Adds a new zone if the name is unique."""
         for z in self.storage.values():
-            if z["name"] == name:
+            if z["name"] == name and z.get("owner") == owner:
                 raise HTTPException(status_code=400, detail="A zone with this name already exists!")
 
         new_id = self.next_id
@@ -52,15 +62,18 @@ class InMemoryZoneRepository(BaseZoneRepository): # type: ignore
         new_zone = {
             "id": new_id,
             "name": name,
+            "owner": owner,
             "status": "off",
             "last_watered": "Never"
         }
         self.storage[new_id] = new_zone # type: ignore
         return new_zone
 
-    def delete_zone(self, zone_id: int) -> bool: # type: ignore
+    def delete_zone(self, zone_id: int, owner: str = None) -> bool: # type: ignore
         """Deletes a zone by ID if it exists."""
         if zone_id in self.storage:
+            if owner and self.storage[zone_id].get("owner") != owner:
+                return False
             del self.storage[zone_id]
             return True
         return False
@@ -71,6 +84,7 @@ def override_zone_repository(monkeypatch):
     """Fixture to inject the in-memory zone mock repository."""
     mock_zone_repo = InMemoryZoneRepository() # type: ignore
     monkeypatch.setattr("database.factory.get_zone_repository", lambda: mock_zone_repo)
+    monkeypatch.setattr("routers.zones.get_zone_repository", lambda: mock_zone_repo)
     return mock_zone_repo
 
 
