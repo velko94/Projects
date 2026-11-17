@@ -20,7 +20,7 @@ find aws_deploy/package -name "*.so" -exec strip {} + 2>/dev/null || true
 
 find . -maxdepth 1 ! -name '.' ! -name 'aws_deploy' -exec cp -r {} aws_deploy/package/ \;
 cd aws_deploy/package
-zip -9 -r ../lambda.zip . -x "aws_deploy*" "requirements*" ".git*" "docker-compose.yaml" ".env" "build_lambda.sh" "*.pyc" "*.pyi" 
+zip -9 -r ../lambda.zip . -x "aws_deploy*" "requirements*" ".git*" "docker-compose.yaml" ".env" "build_lambda.sh" "*.pyc" "*.pyi" "tests*" "*test_*.py"
 cd ../../
 
 echo "--- Cleaning up temporary build directory ---"

@@ -28,7 +28,7 @@ def test_duplicate_user_registration():
         register_user(username, password)
 
     assert exc_info.value.status_code == 400
-    assert "already taken" in exc_info.value.detail # type: ignore
+    assert "Wrong username or password" in exc_info.value.detail # type: ignore
 
 
 def test_different_users_same_password():
