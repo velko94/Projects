@@ -28,4 +28,5 @@ def override_repository(monkeypatch):
     """Globally injects the mock repository so tests never touch a real database."""
     mock_repo = InMemoryUserRepository()
     monkeypatch.setattr("database.factory.get_user_repository", lambda: mock_repo)
+    monkeypatch.setattr("backend.users.get_user_repository", lambda: mock_repo)
     return mock_repo

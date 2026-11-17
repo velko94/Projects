@@ -48,6 +48,9 @@ jobs:
           PYTHONPATH: .
           IRRIGATION_API_KEY: "dummy_test_api_key_for_ci"
           JWT_SECRET: "dummy_test_jwt_secret_for_ci"
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/irrigation"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "postgres"
+          POSTGRES_DB: "irrigation"
+          DB_HOST: "localhost"
         run: |
           pytest -v

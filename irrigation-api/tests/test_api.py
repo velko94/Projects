@@ -23,5 +23,5 @@ def test_register_and_login_api_endpoints():
         "password": "StrongPassword123"
     }
 
-    response = client.post("/auth/register", json=payload)
+    response = client.post("/api/v1/register", json=payload)
     assert response.status_code in [200, 201, 400]
