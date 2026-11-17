@@ -4,7 +4,7 @@ Shared test fixtures and mock repositories for pytest.
 
 import pytest
 from database.base import BaseUserRepository
-
+from database.postgres_repo import init_db
 
 class InMemoryUserRepository(BaseUserRepository):
     """Shared in-memory mock repository for isolated testing."""
@@ -30,3 +30,8 @@ def override_repository(monkeypatch):
     monkeypatch.setattr("database.factory.get_user_repository", lambda: mock_repo)
     monkeypatch.setattr("backend.users.get_user_repository", lambda: mock_repo)
     return mock_repo
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_database():
+    """Automatically creates all database tables (users, zones) before running tests."""
+    init_db()
