@@ -25,3 +25,5 @@ def test_register_and_login_api_endpoints():
 
     response = client.post("/api/v1/register", json=payload)
     assert response.status_code in [200, 201, 400]
+
+
