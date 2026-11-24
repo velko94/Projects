@@ -15,6 +15,7 @@ from slowapi.errors import RateLimitExceeded
 from backend.config import IS_AWS_LAMBDA
 from routers import auth, zones
 from database.factory import init_db
+import os
 
 
 @asynccontextmanager
@@ -38,12 +39,18 @@ app = FastAPI(
 )
 
 # Configure CORS policies
+raw_origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:8180,http://127.0.0.1:8180",
+)
+allowed_origins_custom = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+
 app.add_middleware(
-    CORSMiddleware, # type: ignore
-    allow_origins=["*"], # type: ignore
-    allow_credentials=True, # type: ignore
-    allow_methods=["*"], #  type: ignore
-    allow_headers=["*"], # type: ignore
+    CORSMiddleware,
+    allow_origins=allowed_origins_custom,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
     max_age=3600
 )
 
