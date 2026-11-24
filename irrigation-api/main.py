@@ -14,6 +14,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from backend.config import IS_AWS_LAMBDA
 from routers import auth, zones
+from database.factory import init_db
 
 
 @asynccontextmanager
@@ -43,6 +44,7 @@ app.add_middleware(
     allow_credentials=True, # type: ignore
     allow_methods=["*"], #  type: ignore
     allow_headers=["*"], # type: ignore
+    max_age=3600
 )
 
 # Initialize Rate Limiter based on client IP address
@@ -72,12 +74,13 @@ app.include_router(auth.router)
 app.include_router(zones.router)
 
 
+asgi_handler = Mangum(app)
+
 def handler(event, context):
     """
         AWS Lambda handler function using Mangum adapter.
         Translates AWS API Gateway events to ASGI for FastAPI execution.
         """
-    asgi_handler = Mangum(app)
     return asgi_handler(event, context)
 
 
