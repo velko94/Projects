@@ -4,9 +4,11 @@
  * and dynamic UI rendering.
  */
 
-const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8001/api/v1"
-    : `${window.location.origin}/PROD/smart-irrigation-api/api/v1`;
+const API_URL =
+    window.APP_CONFIG?.API_URL ||
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8001/api/v1"
+        : `${window.location.origin}/api/v1`);
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("access_token");
