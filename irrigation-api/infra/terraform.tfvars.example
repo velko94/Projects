@@ -1,0 +1,10 @@
+aws_region           = "eu-central-1"
+environment          = "prod"
+project_name         = "smart-irrigation"
+frontend_bucket_name = "your-s3-frontend-bucket-name"
+zones_hash_key       = "zone_id"
+
+# [CORS]
+cors_origins = [
+  "http://your-frontend-url.s3-website.eu-central-1.amazonaws.com"
+]
