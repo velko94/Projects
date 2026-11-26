@@ -5,7 +5,8 @@ integrating password hashing, database repositories, and JWT token issuance.
 """
 
 from fastapi import HTTPException
-from backend.security import get_password_encode, check_pwd, create_access_token
+
+from backend.security import check_pwd, create_access_token, get_password_encode
 from database.factory import get_user_repository
 
 

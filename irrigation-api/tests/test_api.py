@@ -5,6 +5,7 @@ Integration tests for FastAPI application and routers:
 """
 
 from fastapi.testclient import TestClient
+
 from main import app
 
 client = TestClient(app)

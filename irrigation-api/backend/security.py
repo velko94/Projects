@@ -5,11 +5,13 @@ and validation, and API key header verification for secure endpoint access.
 """
 
 import os
+from datetime import UTC, datetime, timedelta
+
 import bcrypt
-from datetime import datetime, timedelta, timezone
 import jwt
-from fastapi import Security, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, APIKeyHeader
+from fastapi import HTTPException, Security
+from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
+
 from backend.config import API_KEY, API_KEY_NAME
 
 # API Key header security scheme
@@ -49,7 +51,7 @@ security_bearer = HTTPBearer()
 def create_access_token(data: dict) -> str:
     """Generates a JSON Web Token (JWT) containing the provided payload data."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -64,9 +66,9 @@ def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Security(securi
             raise HTTPException(status_code=401, detail="Invalid token payload")
         return username
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
+        raise HTTPException(status_code=401, detail="Token has expired") from None
     except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Could not validate token")
+        raise HTTPException(status_code=401, detail="Could not validate token") from None
 
 
 def verify_api_key(header_key: str = Security(api_key_header)) -> str:

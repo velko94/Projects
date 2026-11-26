@@ -5,9 +5,11 @@ Handles serverless user persistence and irrigation zone management for AWS deplo
 
 import os
 import time
+
 import boto3
+from boto3.dynamodb.conditions import Attr
 from fastapi import HTTPException
-from boto3.dynamodb.conditions import Key, Attr
+
 from database.base import BaseUserRepository, BaseZoneRepository
 
 
@@ -158,7 +160,7 @@ class DynamoZoneRepository(BaseZoneRepository):  # type: ignore
         if len(user_zones) >= 20:
             raise HTTPException(status_code=400, detail="Maximum limit of 20 zones reached for this account.")
 
-        for z_id, z_data in user_zones.items():
+        for z_data in user_zones.values():
             if z_data["name"] == name:
                 raise HTTPException(status_code=400, detail="A zone with this name already exists!")
 

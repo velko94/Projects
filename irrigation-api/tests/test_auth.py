@@ -5,13 +5,15 @@ Unit tests for authentication and JWT security logic:
 3. JWT token generation, valid decoding, and expiration/invalid handling.
 """
 
+from datetime import UTC, datetime, timedelta
+
+import jwt
 import pytest
 from fastapi import HTTPException
-from routers.auth import register_user, login_user
-from backend.security import create_access_token, verify_jwt_token
 from fastapi.security import HTTPAuthorizationCredentials
-from datetime import timedelta, datetime, timezone
-import jwt
+
+from backend.security import create_access_token, verify_jwt_token
+from routers.auth import login_user, register_user
 
 
 def test_duplicate_user_registration():
@@ -80,10 +82,10 @@ def test_jwt_token_expired_handling():
     # Manually create a token that is already expired (expiration set in the past)
     expired_payload = {
         "sub": username,
-        "exp": datetime.now(timezone.utc) - timedelta(minutes=15)
+        "exp": datetime.now(UTC) - timedelta(minutes=15)
     }
 
-    from backend.security import SECRET_KEY, ALGORITHM
+    from backend.security import ALGORITHM, SECRET_KEY
     expired_token = jwt.encode(expired_payload, SECRET_KEY, algorithm=ALGORITHM)
 
     credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=expired_token)

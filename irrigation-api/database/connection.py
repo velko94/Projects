@@ -5,9 +5,10 @@ and defines the core User model schema.
 """
 
 import os
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, declarative_base
+
 from dotenv import load_dotenv
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Load environment variables from a .env file
 load_dotenv()

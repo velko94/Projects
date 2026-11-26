@@ -4,14 +4,16 @@ Includes strict Pydantic data validation for usernames and passwords,
 along with Rate Limiting protection against brute-force attacks.
 """
 
-from fastapi import APIRouter, Request
-from pydantic import BaseModel, field_validator, Field
 import re
+
+from fastapi import APIRouter, Request
+from pydantic import BaseModel, Field, field_validator
 from pydantic_core import PydanticCustomError
-import utils
-from backend.users import register_user, login_user
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
+import utils
+from backend.users import login_user, register_user
 
 router = APIRouter(prefix="/api/v1", tags=["Auth"])
 limiter = Limiter(key_func=get_remote_address)

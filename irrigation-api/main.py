@@ -3,19 +3,21 @@ Main application entry point for the Smart Irrigation API.
 Handles FastAPI app initialization, middleware, rate limiting, exception handlers,
 database lifespan events, and AWS Lambda integration.
 """
+import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from mangum import Mangum
-from slowapi import Limiter, _rate_limit_exceeded_handler # type: ignore
-from slowapi.util import get_remote_address
+from slowapi import Limiter, _rate_limit_exceeded_handler  # type: ignore
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+
 from backend.config import IS_AWS_LAMBDA
-from routers import auth, zones
 from database.factory import init_db
-import os
+from routers import auth, zones
 
 
 @asynccontextmanager

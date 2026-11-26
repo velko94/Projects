@@ -4,9 +4,10 @@ Handles database initialization, user persistence, and irrigation zone CRUD oper
 """
 
 from fastapi import HTTPException
+from sqlalchemy import Column, Float, Integer, String, text
+
 from database.base import BaseUserRepository, BaseZoneRepository
-from sqlalchemy import Column, Integer, String, text,Float
-from database.connection import Base, SessionLocal, User, engine
+from database.connection import Base, SessionLocal, User
 
 
 class PostgresUserRepository(BaseUserRepository):

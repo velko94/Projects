@@ -8,6 +8,7 @@ Unit tests for irrigation zone management logic:
 
 import pytest
 from fastapi import HTTPException
+
 from database.base import BaseZoneRepository
 
 
@@ -18,7 +19,8 @@ class InMemoryZoneRepository(BaseZoneRepository): # type: ignore
         # Pre-populate with a couple of mock zones for testing
         self.storage = {
             1: {"name": "Greenhouse Zone", "owner": "default_user", "status": "off", "last_watered": "Never"},
-            2: {"name": "Lawn Sprinklers", "owner": "default_user", "status": "on", "last_watered": "2026-06-01 10:00:00"}
+            2: {"name": "Lawn Sprinklers", "owner": "default_user",
+                "status": "on", "last_watered": "2026-06-01 10:00:00"}
         }
         self.next_id = 3
 
