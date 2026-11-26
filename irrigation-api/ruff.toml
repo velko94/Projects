@@ -1,0 +1,8 @@
+line-length = 120
+
+target-version = "py311"
+exclude = [".venv", "venv", "infra", "aws_deploy", "__pycache__"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "PIE", "PERF", "RUF"]
+ignore = ["B008", "BLE001","RUF013"]
