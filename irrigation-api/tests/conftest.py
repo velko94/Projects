@@ -4,7 +4,8 @@ Shared test fixtures and database initialization for pytest.
 
 import pytest
 from database.connection import Base, engine ,User
-from database.postgres_repo import ZoneModel , init_db
+from database.postgres_repo import ZoneModel
+from database.factory import init_db
 
 
 @pytest.fixture(scope="session", autouse=True)

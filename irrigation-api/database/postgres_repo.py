@@ -9,11 +9,6 @@ from sqlalchemy import Column, Integer, String, text,Float
 from database.connection import Base, SessionLocal, User, engine
 
 
-def init_db():
-    """Creates all database tables defined in metadata if they do not already exist."""
-    Base.metadata.create_all(bind=engine)
-
-
 class PostgresUserRepository(BaseUserRepository):
     """Repository handling user data operations against PostgreSQL."""
 

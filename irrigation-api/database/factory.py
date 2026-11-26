@@ -9,6 +9,13 @@ from backend.config import IS_AWS_LAMBDA
 from database.base import BaseUserRepository, BaseZoneRepository
 
 
+def init_db() -> None:
+    """Initializes/verifies active repositories created by this factory."""
+    for repo in (get_user_repository(), get_zone_repository()):
+        table = getattr(repo, "table", None)
+        if table is not None:
+            table.load()
+
 def get_db_type() -> str:
     """Determines which database backend to use based on environment configuration."""
     db_type = os.getenv("DB_TYPE", "").lower()
@@ -17,7 +24,6 @@ def get_db_type() -> str:
 
     # Default to DynamoDB if running on AWS Lambda, otherwise fall back to PostgreSQL
     return "dynamo" if IS_AWS_LAMBDA else "postgres"
-
 
 def get_user_repository() -> BaseUserRepository:
     """Factory method to instantiate and return the correct User repository implementation."""

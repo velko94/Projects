@@ -14,7 +14,9 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from backend.config import IS_AWS_LAMBDA
 from routers import auth, zones
-from database.postgres_repo import init_db
+from database.factory import init_db
+import os
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -24,9 +26,9 @@ async def lifespan(_: FastAPI):
         """
     try:
         init_db()
-        print("Базата данни е проверена и основните таблици са създадени успешно.")
+        print("Database is initiated successfully and working ")
     except Exception as e:
-        print(f"Грешка при инициализация на базата данни: {e}")
+        print(f"Error initializing the DB {e}")
     yield
 
 # Initialize FastAPI application with dynamic titles and root paths based on environment
@@ -37,12 +39,19 @@ app = FastAPI(
 )
 
 # Configure CORS policies
+raw_origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:8180,http://127.0.0.1:8180",
+)
+allowed_origins_custom = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+
 app.add_middleware(
-    CORSMiddleware, # type: ignore
-    allow_origins=["*"], # type: ignore
-    allow_credentials=True, # type: ignore
-    allow_methods=["*"], #  type: ignore
-    allow_headers=["*"], # type: ignore
+    CORSMiddleware,
+    allow_origins=allowed_origins_custom,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+    max_age=3600
 )
 
 # Initialize Rate Limiter based on client IP address
@@ -72,12 +81,13 @@ app.include_router(auth.router)
 app.include_router(zones.router)
 
 
+asgi_handler = Mangum(app)
+
 def handler(event, context):
     """
         AWS Lambda handler function using Mangum adapter.
         Translates AWS API Gateway events to ASGI for FastAPI execution.
         """
-    asgi_handler = Mangum(app)
     return asgi_handler(event, context)
 
 

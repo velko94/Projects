@@ -8,6 +8,7 @@ ENV/
 .env
 aws_deploy/
 *.zip
+frontend/config.js
 requirements_lambda.tmp
 # PyCharm системна папка
 .idea/
