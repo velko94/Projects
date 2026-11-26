@@ -1,4 +1,4 @@
-# Python системни файлове
+# Python systen fukes
 __pycache__/
 *.py[cod]
 *$py.class
@@ -10,11 +10,11 @@ aws_deploy/
 *.zip
 frontend/config.js
 requirements_lambda.tmp
-# PyCharm системна папка
+# PyCharm system dir
 .idea/
 .idea/*
 
-# AWS и Terraform временни файлове (за по-нататък)
+# AWS и Terraform temp files
 .terraform/
 *.tfstate
 *.tfstate.backup
