@@ -1,4 +1,4 @@
-# Python systen fukes
+# Python system files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -14,7 +14,7 @@ requirements_lambda.tmp
 .idea/
 .idea/*
 
-# AWS и Terraform temp files
+# AWS and Terraform temp files
 .terraform/
 *.tfstate
 *.tfstate.backup
